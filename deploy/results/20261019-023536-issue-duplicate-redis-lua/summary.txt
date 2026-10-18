@@ -1,0 +1,81 @@
+# 시각     : 2026-10-19 02:35:36 KST
+# 단계     : redis-lua
+# 시나리오 : issue-duplicate.js -e USERS=100 -e REPEAT=10
+# 코드     : a8a163a (커밋 안 된 변경 있음)
+# 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ
+
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-duplicate.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1000 max VUs, 2m30s max duration (incl. graceful stop):
+              * duplicate: 1 iterations for each of 1000 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+
+running (0m00.6s), 1000/1000 VUs, 0 complete and 0 interrupted iterations
+duplicate   [   0% ] 1000 VUs  0m00.3s/2m0s  0000/1000 iters, 1 per VU
+
+running (0m01.6s), 0440/1000 VUs, 560 complete and 0 interrupted iterations
+duplicate   [  56% ] 1000 VUs  0m01.3s/2m0s  0560/1000 iters, 1 per VU
+time="2026-10-18T17:35:41Z" level=info msg="[검증] 회차 id = 2" source=console
+time="2026-10-18T17:35:41Z" level=info msg="[검증] docker exec -i fcfs-mysql mysql -ufcfs -pfcfs1234 fcfs -t --init-command=\"set @round_id=2\" < k6/verify.sql" source=console
+
+     coupon_already_issued..........: 900    414.326916/s
+   ✓ coupon_issued..................: 100    46.036324/s
+   ✓ coupon_unexpected..............: 0      0/s
+     data_received..................: 213 kB 98 kB/s
+     data_sent......................: 201 kB 92 kB/s
+     http_req_blocked...............: avg=138.39ms min=2.89µs  med=114.03ms max=360.29ms p(90)=306.32ms p(95)=314.04ms
+     http_req_connecting............: avg=137.46ms min=0s      med=113.97ms max=360.22ms p(90)=306.2ms  p(95)=313.78ms
+     http_req_duration..............: avg=772.2ms  min=8.24ms  med=782.6ms  max=1.58s    p(90)=1.43s    p(95)=1.49s   
+       { expected_response:true }...: avg=772.2ms  min=8.24ms  med=782.6ms  max=1.58s    p(90)=1.43s    p(95)=1.49s   
+     ✓ { name:issue }...............: avg=849.7ms  min=38.77ms med=875ms    max=1.58s    p(90)=1.44s    p(95)=1.5s    
+     http_req_failed................: 0.00%  0 out of 1102
+     http_req_receiving.............: avg=169.06µs min=21.68µs med=67.64µs  max=9.76ms   p(90)=177.78µs p(95)=276.5µs 
+     http_req_sending...............: avg=6.16ms   min=10.34µs med=4.08ms   max=28.18ms  p(90)=22.37ms  p(95)=27.85ms 
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s       max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=765.87ms min=8.05ms  med=777.43ms max=1.56s    p(90)=1.42s    p(95)=1.47s   
+     http_reqs......................: 1102   507.32029/s
+     ✓ { name:issue }...............: 1000   460.36324/s
+     iteration_duration.............: avg=1s       min=62.99ms med=1.01s    max=1.91s    p(90)=1.56s    p(95)=1.64s   
+     iterations.....................: 1000   460.36324/s
+     vus............................: 440    min=440       max=1000
+     vus_max........................: 1000   min=1000      max=1000
+
+
+running (0m02.2s), 0000/1000 VUs, 1000 complete and 0 interrupted iterations
+duplicate ✓ [ 100% ] 1000 VUs  0m01.9s/2m0s  1000/1000 iters, 1 per VU
+== DB 검증 (회차 2)
++----------------------------------------------------------------------------+
+| step                                                                       |
++----------------------------------------------------------------------------+
+| == 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급 |
++----------------------------------------------------------------------------+
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|           1000 |    100 |        -900 |
++----------------+--------+-------------+
++-----------------------------------------------------------+
+| step                                                      |
++-----------------------------------------------------------+
+| == 2. 1인 1장: 한 줄이라도 나오면 중복 발급 |
++-----------------------------------------------------------+
++-----------------------------------------------------------------+
+| step                                                            |
++-----------------------------------------------------------------+
+| == 3. 중복 발급 받은 유저 수 / 초과로 나간 장수 |
++-----------------------------------------------------------------+
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+

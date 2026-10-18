@@ -3,32 +3,34 @@ package com.coupon.rush.coupon.issued.adapter.out.redis;
 import com.coupon.rush.coupon.issued.application.port.out.IssueDecision;
 import com.coupon.rush.coupon.issued.application.port.out.IssueRoster;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 class RedisIssueRoster implements IssueRoster {
 
+    // 처음 한 번만 본문(EVAL)을 보내고, 이후에는 해시(EVALSHA)로 실행한다
+    private static final RedisScript<Long> ISSUE_SCRIPT =
+            RedisScript.of(new ClassPathResource("redis/issue.lua"), Long.class);
+
     private final StringRedisTemplate redisTemplate;
 
     @Override
     public IssueDecision tryIssue(Long roundId, Long usersId, int totalQuantity) {
-        String key = key(roundId);
-        String member = usersId.toString();
+        Long result = redisTemplate.execute(ISSUE_SCRIPT, List.of(key(roundId)),
+                usersId.toString(), String.valueOf(totalQuantity));
 
-        if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(key, member))) {   // SISMEMBER: 이미 받았나
-            return IssueDecision.DUPLICATED;
-        }
-        Long count = redisTemplate.opsForSet().size(key);                             // SCARD: 지금 몇 명인가
-        if (count != null && count >= totalQuantity) {
-            return IssueDecision.SOLD_OUT;
-        }
-        Long added = redisTemplate.opsForSet().add(key, member);                      // SADD: 명단에 넣기
-        if (added == null || added == 0) {
-            return IssueDecision.DUPLICATED;
-        }
-        return IssueDecision.ACCEPTED;
+        return switch (result.intValue()) {
+            case 0 -> IssueDecision.ACCEPTED;
+            case 1 -> IssueDecision.DUPLICATED;
+            case 2 -> IssueDecision.SOLD_OUT;
+            default -> throw new IllegalStateException("알 수 없는 발급 판정 결과: " + result);
+        };
     }
 
     @Override
