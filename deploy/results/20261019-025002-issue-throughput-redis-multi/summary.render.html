@@ -1,0 +1,71 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  body { margin: 0; background: #1e1e2e; }
+  pre { margin: 0; padding: 28px 32px; color: #cdd6f4; font: 14px/1.5 Menlo, "D2Coding", "Apple SD Gothic Neo", monospace; white-space: pre; }
+  .good { color: #a6e3a1; } .bad { color: #f38ba8; font-weight: bold; } .head { color: #89b4fa; font-weight: bold; }
+</style><pre><span class="head"># 시각     : 2026-10-19 02:50:02 KST</span>
+<span class="head"># 단계     : redis-multi</span>
+<span class="head"># 시나리오 : issue-throughput.js -e RATE=1000 -e DURATION=30s -e USERS=30000</span>
+<span class="head"># 코드     : d72bb01 (커밋 안 된 변경 있음)</span>
+<span class="head"># 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ</span>
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-throughput.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 2000 max VUs, 1m0s max duration (incl. graceful stop):
+              * throughput: 1000.00 iterations/s for 30s (maxVUs: 1000-2000, gracefulStop: 30s)
+
+throughput ↓ [ 100% ] 1290/1312 VUs  30s  1000.00 iters/s
+
+throughput ↓ [ 100% ] 1290/1312 VUs  30s  1000.00 iters/s
+time=&quot;2026-10-18T17:51:18Z&quot; level=info msg=&quot;[검증] 회차 id = 4&quot; source=console
+
+<span class="good">   ✓ coupon_issued..................: 21912  301.198821/s</span>
+<span class="good">   ✓ coupon_unexpected..............: 0      0/s</span>
+     data_received..................: 8.7 MB 120 kB/s
+     data_sent......................: 10 MB  138 kB/s
+     dropped_iterations.............: 8075   110.997649/s
+     http_req_blocked...............: avg=51.2ms   min=1.61µs  med=4.16µs  max=7.74s    p(90)=7.98µs   p(95)=23.77µs 
+     http_req_connecting............: avg=48.18ms  min=0s      med=0s      max=7.43s    p(90)=0s       p(95)=0s      
+     http_req_duration..............: avg=470.19ms min=5.43ms  med=9.17ms  max=7.2s     p(90)=1.33s    p(95)=1.46s   
+       { expected_response:true }...: avg=470.19ms min=5.43ms  med=9.17ms  max=7.2s     p(90)=1.33s    p(95)=1.46s   
+<span class="bad">     ✗ { name:issue }...............: avg=1.1s     min=13.22ms med=1.12s   max=7.2s     p(90)=1.5s     p(95)=1.59s   </span>
+     http_req_failed................: 0.00%  0 out of 51914
+     http_req_receiving.............: avg=90.67µs  min=13.89µs med=53.78µs max=186.83ms p(90)=150.82µs p(95)=246.71µs
+     http_req_sending...............: avg=1.25ms   min=5.43µs  med=18.22µs max=2.23s    p(90)=29.54µs  p(95)=42.28µs 
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s      max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=468.85ms min=5.18ms  med=9.08ms  max=6.83s    p(90)=1.33s    p(95)=1.46s   
+     http_reqs......................: 51914  713.601478/s
+<span class="good">     ✓ { name:issue }...............: 21912  301.198821/s</span>
+     iteration_duration.............: avg=1.22s    min=42.52ms med=1.14s   max=8.25s    p(90)=1.53s    p(95)=1.72s   
+     iterations.....................: 21912  301.198821/s
+     vus............................: 244    min=0          max=1305
+     vus_max........................: 1312   min=1000       max=1312
+
+running (1m12.7s), 0000/1312 VUs, 21912 complete and 0 interrupted iterations
+<span class="good">throughput ✓ [ 100% ] 0000/1312 VUs  30s  1000.00 iters/s</span>
+<span class="bad">time=&quot;2026-10-18T17:51:18Z&quot; level=error msg=&quot;thresholds on metrics &#x27;http_req_duration{name:issue}&#x27; have been crossed&quot;</span>
+<span class="head">== 발급 요청 실제 처리량: 21912건 / 30초 = 730 req/s (setup 시간 제외), 못 보낸 요청(dropped) 8075건</span>
+<span class="head">== DB 검증 (회차 4)</span>
+<span class="head">== 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급</span>
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|          30000 |  21912 |       -8088 |
++----------------+--------+-------------+
+<span class="head">== 2. 1인 1장: 한 줄이라도 나오면 중복 발급</span>
+<span class="good">(해당 없음: 0행)</span>
+<span class="head">== 3. 중복 발급 받은 유저 수 / 초과로 나간 장수</span>
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+</pre>

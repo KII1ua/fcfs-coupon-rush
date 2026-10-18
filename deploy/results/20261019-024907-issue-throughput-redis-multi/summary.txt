@@ -1,0 +1,214 @@
+# 시각     : 2026-10-19 02:49:07 KST
+# 단계     : redis-multi
+# 시나리오 : issue-throughput.js -e RATE=500 -e DURATION=30s
+# 코드     : d72bb01 (커밋 안 된 변경 있음)
+# 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ
+
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-throughput.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1000 max VUs, 1m0s max duration (incl. graceful stop):
+              * throughput: 500.00 iterations/s for 30s (maxVUs: 500-1000, gracefulStop: 30s)
+
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+running (0m16.9s), 0073/0500 VUs, 60 complete and 0 interrupted iterations
+throughput   [   2% ] 0073/0500 VUs  00.5s/30s  500.00 iters/s
+
+running (0m18.0s), 0236/0500 VUs, 550 complete and 0 interrupted iterations
+throughput   [   5% ] 0236/0500 VUs  01.6s/30s  500.00 iters/s
+
+running (0m18.7s), 0005/0500 VUs, 1167 complete and 0 interrupted iterations
+throughput   [   8% ] 0005/0500 VUs  02.3s/30s  500.00 iters/s
+
+running (0m19.7s), 0006/0500 VUs, 1666 complete and 0 interrupted iterations
+throughput   [  11% ] 0006/0500 VUs  03.3s/30s  500.00 iters/s
+
+running (0m20.7s), 0004/0500 VUs, 2167 complete and 0 interrupted iterations
+throughput   [  14% ] 0004/0500 VUs  04.3s/30s  500.00 iters/s
+
+running (0m21.7s), 0005/0500 VUs, 2667 complete and 0 interrupted iterations
+throughput   [  18% ] 0005/0500 VUs  05.3s/30s  500.00 iters/s
+
+running (0m22.7s), 0005/0500 VUs, 3167 complete and 0 interrupted iterations
+throughput   [  21% ] 0005/0500 VUs  06.3s/30s  500.00 iters/s
+
+running (0m23.7s), 0006/0500 VUs, 3666 complete and 0 interrupted iterations
+throughput   [  24% ] 0006/0500 VUs  07.3s/30s  500.00 iters/s
+
+running (0m24.7s), 0005/0500 VUs, 4167 complete and 0 interrupted iterations
+throughput   [  28% ] 0005/0500 VUs  08.3s/30s  500.00 iters/s
+
+running (0m25.7s), 0004/0500 VUs, 4668 complete and 0 interrupted iterations
+throughput   [  31% ] 0004/0500 VUs  09.3s/30s  500.00 iters/s
+
+running (0m26.7s), 0004/0500 VUs, 5168 complete and 0 interrupted iterations
+throughput   [  34% ] 0004/0500 VUs  10.3s/30s  500.00 iters/s
+
+running (0m27.7s), 0005/0500 VUs, 5667 complete and 0 interrupted iterations
+throughput   [  38% ] 0005/0500 VUs  11.3s/30s  500.00 iters/s
+
+running (0m28.7s), 0004/0500 VUs, 6168 complete and 0 interrupted iterations
+throughput   [  41% ] 0004/0500 VUs  12.3s/30s  500.00 iters/s
+
+running (0m29.7s), 0005/0500 VUs, 6667 complete and 0 interrupted iterations
+throughput   [  44% ] 0005/0500 VUs  13.3s/30s  500.00 iters/s
+
+running (0m30.7s), 0004/0500 VUs, 7168 complete and 0 interrupted iterations
+throughput   [  48% ] 0004/0500 VUs  14.3s/30s  500.00 iters/s
+
+running (0m31.7s), 0004/0500 VUs, 7667 complete and 0 interrupted iterations
+throughput   [  51% ] 0004/0500 VUs  15.3s/30s  500.00 iters/s
+
+running (0m32.7s), 0005/0500 VUs, 8167 complete and 0 interrupted iterations
+throughput   [  54% ] 0005/0500 VUs  16.3s/30s  500.00 iters/s
+
+running (0m33.8s), 0007/0500 VUs, 8666 complete and 0 interrupted iterations
+throughput   [  58% ] 0007/0500 VUs  17.3s/30s  500.00 iters/s
+
+running (0m34.7s), 0005/0500 VUs, 9167 complete and 0 interrupted iterations
+throughput   [  61% ] 0005/0500 VUs  18.3s/30s  500.00 iters/s
+
+running (0m35.7s), 0006/0500 VUs, 9666 complete and 0 interrupted iterations
+throughput   [  64% ] 0006/0500 VUs  19.3s/30s  500.00 iters/s
+
+running (0m36.7s), 0002/0500 VUs, 10170 complete and 0 interrupted iterations
+throughput   [  68% ] 0002/0500 VUs  20.3s/30s  500.00 iters/s
+
+running (0m37.7s), 0002/0500 VUs, 10670 complete and 0 interrupted iterations
+throughput   [  71% ] 0002/0500 VUs  21.3s/30s  500.00 iters/s
+
+running (0m38.7s), 0003/0500 VUs, 11169 complete and 0 interrupted iterations
+throughput   [  74% ] 0003/0500 VUs  22.3s/30s  500.00 iters/s
+
+running (0m39.7s), 0002/0500 VUs, 11670 complete and 0 interrupted iterations
+throughput   [  78% ] 0002/0500 VUs  23.3s/30s  500.00 iters/s
+
+running (0m40.7s), 0001/0500 VUs, 12170 complete and 0 interrupted iterations
+throughput   [  81% ] 0002/0500 VUs  24.3s/30s  500.00 iters/s
+
+running (0m41.7s), 0002/0500 VUs, 12669 complete and 0 interrupted iterations
+throughput   [  84% ] 0002/0500 VUs  25.3s/30s  500.00 iters/s
+
+running (0m42.7s), 0002/0500 VUs, 13170 complete and 0 interrupted iterations
+throughput   [  88% ] 0002/0500 VUs  26.3s/30s  500.00 iters/s
+
+running (0m43.7s), 0002/0500 VUs, 13670 complete and 0 interrupted iterations
+throughput   [  91% ] 0002/0500 VUs  27.3s/30s  500.00 iters/s
+
+running (0m44.7s), 0001/0500 VUs, 14170 complete and 0 interrupted iterations
+throughput   [  94% ] 0001/0500 VUs  28.3s/30s  500.00 iters/s
+
+running (0m45.7s), 0002/0500 VUs, 14670 complete and 0 interrupted iterations
+throughput   [  98% ] 0002/0500 VUs  29.3s/30s  500.00 iters/s
+time="2026-10-18T17:49:57Z" level=info msg="[검증] 회차 id = 3" source=console
+time="2026-10-18T17:49:57Z" level=info msg="[검증] docker exec -i fcfs-mysql mysql -ufcfs -pfcfs1234 fcfs -t --init-command=\"set @round_id=3\" < k6/verify.sql" source=console
+
+     coupon_already_issued..........: 5001   107.753637/s
+   ✓ coupon_issued..................: 10000  215.464182/s
+   ✓ coupon_unexpected..............: 0      0/s
+     data_received..................: 4.3 MB 93 kB/s
+     data_sent......................: 4.7 MB 102 kB/s
+     http_req_blocked...............: avg=3.22ms   min=1.66µs  med=4.59µs  max=585.38ms p(90)=6.82µs   p(95)=12.18µs 
+     http_req_connecting............: avg=2.36ms   min=0s      med=0s      max=341.24ms p(90)=0s       p(95)=0s      
+     http_req_duration..............: avg=16.56ms  min=2.86ms  med=8.66ms  max=575.83ms p(90)=11.09ms  p(95)=13.9ms  
+       { expected_response:true }...: avg=16.56ms  min=2.86ms  med=8.66ms  max=575.83ms p(90)=11.09ms  p(95)=13.9ms  
+     ✓ { name:issue }...............: avg=21.36ms  min=2.86ms  med=8.42ms  max=575.83ms p(90)=11.14ms  p(95)=132.44ms
+     http_req_failed................: 0.00%  0 out of 25003
+     http_req_receiving.............: avg=113.04µs min=16.36µs med=57.02µs max=54.79ms  p(90)=161.22µs p(95)=262µs   
+     http_req_sending...............: avg=210.82µs min=5.75µs  med=21.82µs max=163.55ms p(90)=29.11µs  p(95)=38.5µs  
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s      max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=16.24ms  min=2.79ms  med=8.56ms  max=559.69ms p(90)=10.98ms  p(95)=13.74ms 
+     http_reqs......................: 25003  538.725094/s
+     ✓ { name:issue }...............: 15001  323.217819/s
+     iteration_duration.............: avg=26.89ms  min=3.02ms  med=8.59ms  max=946.35ms p(90)=11.28ms  p(95)=163.95ms
+     iterations.....................: 15001  323.217819/s
+     vus............................: 2      min=0          max=350
+     vus_max........................: 500    min=500        max=500
+
+
+running (0m46.4s), 0000/0500 VUs, 15001 complete and 0 interrupted iterations
+throughput ✓ [ 100% ] 0000/0500 VUs  30s  500.00 iters/s
+== 발급 요청 실제 처리량: 15001건 / 30초 = 500 req/s (setup 시간 제외)
+== DB 검증 (회차 3)
++----------------------------------------------------------------------------+
+| step                                                                       |
++----------------------------------------------------------------------------+
+| == 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급 |
++----------------------------------------------------------------------------+
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|          10000 |  10000 |           0 |
++----------------+--------+-------------+
++-----------------------------------------------------------+
+| step                                                      |
++-----------------------------------------------------------+
+| == 2. 1인 1장: 한 줄이라도 나오면 중복 발급 |
++-----------------------------------------------------------+
++-----------------------------------------------------------------+
+| step                                                            |
++-----------------------------------------------------------------+
+| == 3. 중복 발급 받은 유저 수 / 초과로 나간 장수 |
++-----------------------------------------------------------------+
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+

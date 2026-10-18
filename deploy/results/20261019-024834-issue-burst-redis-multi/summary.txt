@@ -1,0 +1,114 @@
+# 시각     : 2026-10-19 02:48:34 KST
+# 단계     : redis-multi
+# 시나리오 : issue-burst.js -e USERS=2000 -e QUANTITY=100
+# 코드     : d72bb01 (커밋 안 된 변경 있음)
+# 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ
+
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-burst.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 2000 max VUs, 2m30s max duration (incl. graceful stop):
+              * burst: 1 iterations for each of 2000 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+running (0m08.0s), 2000/2000 VUs, 0 complete and 0 interrupted iterations
+burst   [   0% ] 2000 VUs  0m01.0s/2m0s  0000/2000 iters, 1 per VU
+
+running (0m09.0s), 1811/2000 VUs, 189 complete and 0 interrupted iterations
+burst   [   9% ] 2000 VUs  0m02.0s/2m0s  0189/2000 iters, 1 per VU
+
+running (0m10.0s), 1408/2000 VUs, 592 complete and 0 interrupted iterations
+burst   [  30% ] 2000 VUs  0m03.0s/2m0s  0592/2000 iters, 1 per VU
+
+running (0m11.0s), 0907/2000 VUs, 1093 complete and 0 interrupted iterations
+burst   [  55% ] 2000 VUs  0m04.0s/2m0s  1093/2000 iters, 1 per VU
+
+running (0m12.0s), 0379/2000 VUs, 1621 complete and 0 interrupted iterations
+burst   [  81% ] 2000 VUs  0m05.0s/2m0s  1621/2000 iters, 1 per VU
+time="2026-10-18T17:48:51Z" level=info msg="[검증] 회차 id = 1" source=console
+time="2026-10-18T17:48:51Z" level=info msg="[검증] docker exec -i fcfs-mysql mysql -ufcfs -pfcfs1234 fcfs -t --init-command=\"set @round_id=1\" < k6/verify.sql" source=console
+
+   ✓ coupon_issued..................: 100    7.896604/s
+     coupon_sold_out................: 1900   150.035484/s
+   ✓ coupon_unexpected..............: 0      0/s
+     data_received..................: 731 kB 58 kB/s
+     data_sent......................: 762 kB 60 kB/s
+     http_req_blocked...............: avg=319.83ms min=2.27µs   med=1.84ms   max=1.36s   p(90)=1.07s    p(95)=1.17s   
+     http_req_connecting............: avg=318.25ms min=0s       med=505.67µs max=1.36s   p(90)=1.07s    p(95)=1.17s   
+     http_req_duration..............: avg=1.18s    min=7.53ms   med=81.19ms  max=4.25s   p(90)=3.54s    p(95)=3.9s    
+       { expected_response:true }...: avg=1.18s    min=7.53ms   med=81.19ms  max=4.25s   p(90)=3.54s    p(95)=3.9s    
+     ✓ { name:issue }...............: avg=2.34s    min=77.88ms  med=2.4s     max=4.25s   p(90)=3.9s     p(95)=4.06s   
+     http_req_failed................: 0.00%  0 out of 4002
+     http_req_receiving.............: avg=141.11µs min=21.06µs  med=79.71µs  max=10.29ms p(90)=214.73µs p(95)=277.57µs
+     http_req_sending...............: avg=5.21ms   min=7.05µs   med=179.96µs max=60.72ms p(90)=14.15ms  p(95)=37.72ms 
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s      p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=1.17s    min=7.39ms   med=78.05ms  max=4.23s   p(90)=3.52s    p(95)=3.88s   
+     http_reqs......................: 4002   316.022109/s
+     ✓ { name:issue }...............: 2000   157.932088/s
+     iteration_duration.............: avg=2.98s    min=368.87ms med=2.97s    max=5.51s   p(90)=4.44s    p(95)=4.8s    
+     iterations.....................: 2000   157.932088/s
+     vus............................: 375    min=0         max=2000
+     vus_max........................: 2000   min=2000      max=2000
+
+
+running (0m12.7s), 0000/2000 VUs, 2000 complete and 0 interrupted iterations
+burst ✓ [ 100% ] 2000 VUs  0m05.6s/2m0s  2000/2000 iters, 1 per VU
+== DB 검증 (회차 1)
++----------------------------------------------------------------------------+
+| step                                                                       |
++----------------------------------------------------------------------------+
+| == 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급 |
++----------------------------------------------------------------------------+
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|            100 |    100 |           0 |
++----------------+--------+-------------+
++-----------------------------------------------------------+
+| step                                                      |
++-----------------------------------------------------------+
+| == 2. 1인 1장: 한 줄이라도 나오면 중복 발급 |
++-----------------------------------------------------------+
++-----------------------------------------------------------------+
+| step                                                            |
++-----------------------------------------------------------------+
+| == 3. 중복 발급 받은 유저 수 / 초과로 나간 장수 |
++-----------------------------------------------------------------+
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+
