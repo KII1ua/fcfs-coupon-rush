@@ -1,0 +1,37 @@
+# 1단계(동기 발급)에 필요한 것만 띄운다. Kafka 는 비동기 발급 단계에서 추가한다.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fcfs-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: fcfs
+      POSTGRES_USER: fcfs
+      POSTGRES_PASSWORD: fcfs1234
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fcfs -d fcfs"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: fcfs-redis
+    # AOF 로 재시작해도 접수 명단을 보존한다. 접수 명단은 원본 데이터라 메모리가 차도 지우지 않는다(noeviction).
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres-data:
+  redis-data:
