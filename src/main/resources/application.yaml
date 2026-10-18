@@ -15,6 +15,12 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6380}
+      lettuce:
+        pool:                     # MULTI/EXEC 는 요청마다 전용 커넥션을 잡는다. 풀이 없으면 매번 새 TCP 연결을 맺는다
+          enabled: true
+          max-active: 64
+          max-idle: 64
+          min-idle: 16
 
 server:
   port: 8080

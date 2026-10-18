@@ -1,0 +1,275 @@
+# 시각     : 2026-10-19 02:23:14 KST
+# 단계     : redis-simple
+# 시나리오 : issue-throughput.js -e RATE=1000 -e DURATION=30s -e USERS=30000
+# 코드     : 621e07d (커밋 안 된 변경 있음)
+# 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ
+
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-throughput.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 2000 max VUs, 1m0s max duration (incl. graceful stop):
+              * throughput: 1000.00 iterations/s for 30s (maxVUs: 1000-2000, gracefulStop: 30s)
+
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+Run          [ 100% ] setup()
+throughput   [   0% ]
+
+running (0m39.1s), 0501/1000 VUs, 17 complete and 0 interrupted iterations
+throughput   [   8% ] 0501/1000 VUs  02.5s/30s  1000.00 iters/s
+
+running (0m39.1s), 0501/1000 VUs, 17 complete and 0 interrupted iterations
+throughput   [   8% ] 0501/1000 VUs  02.5s/30s  1000.00 iters/s
+
+running (0m40.4s), 0587/1000 VUs, 17 complete and 0 interrupted iterations
+throughput   [  13% ] 0587/1000 VUs  03.9s/30s  1000.00 iters/s
+
+running (0m42.6s), 0764/1000 VUs, 17 complete and 0 interrupted iterations
+throughput   [  20% ] 0764/1000 VUs  06.1s/30s  1000.00 iters/s
+
+running (0m42.6s), 0764/1000 VUs, 17 complete and 0 interrupted iterations
+throughput   [  20% ] 0764/1000 VUs  06.1s/30s  1000.00 iters/s
+
+running (0m44.7s), 0999/1001 VUs, 18 complete and 0 interrupted iterations
+throughput   [  27% ] 0999/1001 VUs  08.2s/30s  1000.00 iters/s
+
+running (0m44.7s), 0999/1001 VUs, 18 complete and 0 interrupted iterations
+throughput   [  27% ] 0999/1001 VUs  08.2s/30s  1000.00 iters/s
+
+running (0m45.7s), 0996/1010 VUs, 74 complete and 0 interrupted iterations
+throughput   [  31% ] 0996/1010 VUs  09.2s/30s  1000.00 iters/s
+
+running (0m46.5s), 0894/1019 VUs, 360 complete and 0 interrupted iterations
+throughput   [  33% ] 0894/1019 VUs  10.0s/30s  1000.00 iters/s
+
+running (0m47.5s), 0275/1019 VUs, 1999 complete and 0 interrupted iterations
+throughput   [  37% ] 0275/1019 VUs  11.0s/30s  1000.00 iters/s
+
+running (0m48.5s), 0143/1019 VUs, 3131 complete and 0 interrupted iterations
+throughput   [  40% ] 0143/1019 VUs  12.0s/30s  1000.00 iters/s
+
+running (0m49.5s), 0020/1019 VUs, 4255 complete and 0 interrupted iterations
+throughput   [  43% ] 0020/1019 VUs  13.0s/30s  1000.00 iters/s
+
+running (0m50.5s), 0009/1019 VUs, 5264 complete and 0 interrupted iterations
+throughput   [  47% ] 0009/1019 VUs  14.0s/30s  1000.00 iters/s
+
+running (0m51.5s), 0008/1019 VUs, 6265 complete and 0 interrupted iterations
+throughput   [  50% ] 0008/1019 VUs  15.0s/30s  1000.00 iters/s
+
+running (0m52.5s), 0009/1019 VUs, 7265 complete and 0 interrupted iterations
+throughput   [  53% ] 0009/1019 VUs  16.0s/30s  1000.00 iters/s
+
+running (0m53.5s), 0009/1019 VUs, 8267 complete and 0 interrupted iterations
+throughput   [  57% ] 0009/1019 VUs  17.0s/30s  1000.00 iters/s
+
+running (0m54.5s), 0010/1019 VUs, 9265 complete and 0 interrupted iterations
+throughput   [  60% ] 0010/1019 VUs  18.0s/30s  1000.00 iters/s
+
+running (0m55.5s), 0009/1019 VUs, 10265 complete and 0 interrupted iterations
+throughput   [  63% ] 0009/1019 VUs  19.0s/30s  1000.00 iters/s
+
+running (0m56.5s), 0011/1019 VUs, 11263 complete and 0 interrupted iterations
+throughput   [  67% ] 0011/1019 VUs  20.0s/30s  1000.00 iters/s
+
+running (0m57.5s), 0007/1019 VUs, 12267 complete and 0 interrupted iterations
+throughput   [  70% ] 0007/1019 VUs  21.0s/30s  1000.00 iters/s
+
+running (0m58.5s), 0009/1019 VUs, 13265 complete and 0 interrupted iterations
+throughput   [  73% ] 0008/1019 VUs  22.0s/30s  1000.00 iters/s
+
+running (0m59.5s), 0010/1019 VUs, 14263 complete and 0 interrupted iterations
+throughput   [  77% ] 0010/1019 VUs  23.0s/30s  1000.00 iters/s
+
+running (1m00.5s), 0007/1019 VUs, 15266 complete and 0 interrupted iterations
+throughput   [  80% ] 0007/1019 VUs  24.0s/30s  1000.00 iters/s
+
+running (1m01.5s), 0008/1019 VUs, 16268 complete and 0 interrupted iterations
+throughput   [  83% ] 0008/1019 VUs  25.0s/30s  1000.00 iters/s
+
+running (1m02.5s), 0008/1019 VUs, 17265 complete and 0 interrupted iterations
+throughput   [  87% ] 0008/1019 VUs  26.0s/30s  1000.00 iters/s
+
+running (1m03.5s), 0013/1019 VUs, 18261 complete and 0 interrupted iterations
+throughput   [  90% ] 0013/1019 VUs  27.0s/30s  1000.00 iters/s
+
+running (1m04.5s), 0010/1019 VUs, 19265 complete and 0 interrupted iterations
+throughput   [  93% ] 0010/1019 VUs  28.0s/30s  1000.00 iters/s
+
+running (1m05.5s), 0009/1019 VUs, 20264 complete and 0 interrupted iterations
+throughput   [  97% ] 0009/1019 VUs  29.0s/30s  1000.00 iters/s
+
+running (1m06.5s), 0012/1019 VUs, 21262 complete and 0 interrupted iterations
+throughput   [ 100% ] 0012/1019 VUs  30.0s/30s  1000.00 iters/s
+
+   ✓ coupon_issued..................: 21289  319.984941/s
+   ✓ coupon_unexpected..............: 0      0/s
+     data_received..................: 8.6 MB 129 kB/s
+     data_sent......................: 9.9 MB 149 kB/s
+     dropped_iterations.............: 8712   130.945972/s
+     http_req_blocked...............: avg=59.4ms   min=1.38µs  med=4.18µs  max=8.24s    p(90)=6.81µs   p(95)=20.77µs 
+     http_req_connecting............: avg=57.76ms  min=0s      med=0s      max=8s       p(90)=0s       p(95)=0s      
+     http_req_duration..............: avg=41.45ms  min=4.28ms  med=7.9ms   max=7.62s    p(90)=11.26ms  p(95)=137.37ms
+       { expected_response:true }...: avg=41.45ms  min=4.28ms  med=7.9ms   max=7.62s    p(90)=11.26ms  p(95)=137.37ms
+     ✗ { name:issue }...............: avg=90.13ms  min=5.6ms   med=9.34ms  max=7.62s    p(90)=173.4ms  p(95)=419.64ms
+     http_req_failed................: 0.00%  0 out of 51291
+     http_req_receiving.............: avg=102.24µs min=12.69µs med=50.05µs max=103.14ms p(90)=127.07µs p(95)=188.95µs
+     http_req_sending...............: avg=1.88ms   min=5.08µs  med=17.63µs max=1.44s    p(90)=26.42µs  p(95)=35.22µs 
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s      max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=39.46ms  min=4.16ms  med=7.82ms  max=6.73s    p(90)=11.18ms  p(95)=135.49ms
+     http_reqs......................: 51291  770.930885/s
+     ✓ { name:issue }...............: 21289  319.984941/s
+     iteration_duration.............: avg=236.35ms min=5.76ms  med=9.47ms  max=9.65s    p(90)=188.77ms p(95)=607.06ms
+     iterations.....................: 21289  319.984941/s
+     vus............................: 9      min=0          max=1009
+     vus_max........................: 1019   min=1000       max=1019
+
+
+running (1m06.5s), 0000/1019 VUs, 21289 complete and 0 interrupted iterations
+throughput ✓ [ 100% ] 0000/1019 VUs  30s  1000.00 iters/s
+time="2026-10-18T17:24:25Z" level=info msg="[검증] 회차 id = 4" source=console
+time="2026-10-18T17:24:25Z" level=info msg="[검증] docker exec -i fcfs-mysql mysql -ufcfs -pfcfs1234 fcfs -t --init-command=\"set @round_id=4\" < k6/verify.sql" source=console
+time="2026-10-18T17:24:25Z" level=error msg="thresholds on metrics 'http_req_duration{name:issue}' have been crossed"
+== 발급 요청 실제 처리량: 21289건 / 30초 = 710 req/s (setup 시간 제외), 못 보낸 요청(dropped) 8712건
+== DB 검증 (회차 4)
++----------------------------------------------------------------------------+
+| step                                                                       |
++----------------------------------------------------------------------------+
+| == 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급 |
++----------------------------------------------------------------------------+
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|          30000 |  21289 |       -8711 |
++----------------+--------+-------------+
++-----------------------------------------------------------+
+| step                                                      |
++-----------------------------------------------------------+
+| == 2. 1인 1장: 한 줄이라도 나오면 중복 발급 |
++-----------------------------------------------------------+
++-----------------------------------------------------------------+
+| step                                                            |
++-----------------------------------------------------------------+
+| == 3. 중복 발급 받은 유저 수 / 초과로 나간 장수 |
++-----------------------------------------------------------------+
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+

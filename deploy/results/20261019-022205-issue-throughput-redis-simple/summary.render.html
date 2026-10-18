@@ -1,0 +1,67 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  body { margin: 0; background: #1e1e2e; }
+  pre { margin: 0; padding: 28px 32px; color: #cdd6f4; font: 14px/1.5 Menlo, "D2Coding", "Apple SD Gothic Neo", monospace; white-space: pre; }
+  .good { color: #a6e3a1; } .bad { color: #f38ba8; font-weight: bold; } .head { color: #89b4fa; font-weight: bold; }
+</style><pre><span class="head"># 시각     : 2026-10-19 02:22:05 KST</span>
+<span class="head"># 단계     : redis-simple</span>
+<span class="head"># 시나리오 : issue-throughput.js -e RATE=500 -e DURATION=30s</span>
+<span class="head"># 코드     : 621e07d (커밋 안 된 변경 있음)</span>
+<span class="head"># 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ</span>
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-throughput.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1000 max VUs, 1m0s max duration (incl. graceful stop):
+              * throughput: 500.00 iterations/s for 30s (maxVUs: 500-1000, gracefulStop: 30s)
+
+time=&quot;2026-10-18T17:22:54Z&quot; level=info msg=&quot;[검증] 회차 id = 3&quot; source=console
+
+     coupon_already_issued..........: 5000   110.622893/s
+<span class="good">   ✓ coupon_issued..................: 10000  221.245786/s</span>
+<span class="good">   ✓ coupon_unexpected..............: 0      0/s</span>
+     data_received..................: 4.3 MB 96 kB/s
+     data_sent......................: 4.7 MB 105 kB/s
+     http_req_blocked...............: avg=3.82ms   min=1.83µs  med=4.68µs  max=870.12ms p(90)=6.97µs   p(95)=11.99µs 
+     http_req_connecting............: avg=2.99ms   min=0s      med=0s      max=491.75ms p(90)=0s       p(95)=0s      
+     http_req_duration..............: avg=20.57ms  min=1.38ms  med=7.78ms  max=1.07s    p(90)=10.99ms  p(95)=47.39ms 
+       { expected_response:true }...: avg=20.57ms  min=1.38ms  med=7.78ms  max=1.07s    p(90)=10.99ms  p(95)=47.39ms 
+<span class="good">     ✓ { name:issue }...............: avg=28.51ms  min=1.38ms  med=6.99ms  max=1.07s    p(90)=12.31ms  p(95)=193.52ms</span>
+     http_req_failed................: 0.00%  0 out of 25002
+     http_req_receiving.............: avg=73.01µs  min=14.46µs med=57.4µs  max=8.25ms   p(90)=102.52µs p(95)=153.74µs
+     http_req_sending...............: avg=217.22µs min=6.54µs  med=21.31µs max=406.45ms p(90)=28.8µs   p(95)=36.95µs 
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s      max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=20.28ms  min=1.31ms  med=7.69ms  max=1.07s    p(90)=10.9ms   p(95)=42.58ms 
+     http_reqs......................: 25002  553.158715/s
+<span class="good">     ✓ { name:issue }...............: 15000  331.86868/s</span>
+     iteration_duration.............: avg=35.05ms  min=1.55ms  med=7.16ms  max=1.47s    p(90)=12.51ms  p(95)=230.41ms
+     iterations.....................: 15000  331.86868/s
+     vus............................: 2      min=0          max=366
+     vus_max........................: 500    min=500        max=500
+
+running (0m45.2s), 0000/0500 VUs, 15000 complete and 0 interrupted iterations
+<span class="good">throughput ✓ [ 100% ] 0000/0500 VUs  30s  500.00 iters/s</span>
+<span class="head">== 발급 요청 실제 처리량: 15000건 / 30초 = 500 req/s (setup 시간 제외)</span>
+<span class="head">== DB 검증 (회차 3)</span>
+<span class="head">== 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급</span>
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|          10000 |  10000 |           0 |
++----------------+--------+-------------+
+<span class="head">== 2. 1인 1장: 한 줄이라도 나오면 중복 발급</span>
+<span class="good">(해당 없음: 0행)</span>
+<span class="head">== 3. 중복 발급 받은 유저 수 / 초과로 나간 장수</span>
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+</pre>

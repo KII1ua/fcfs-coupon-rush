@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.data.redis)
+    implementation(libs.commons.pool2)
     implementation(libs.spring.boot.starter.flyway)
     runtimeOnly(libs.flyway.mysql)
     runtimeOnly(libs.mysql.connector.j)
@@ -45,6 +46,7 @@ testing {
                 implementation(libs.spring.boot.testcontainers)        // @ServiceConnection
                 implementation(libs.testcontainers.junit.jupiter)
                 implementation(libs.testcontainers.mysql)
+                implementation(libs.testcontainers)
                 compileOnly(libs.lombok)
                 annotationProcessor(libs.lombok)
             }

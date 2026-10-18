@@ -2,6 +2,8 @@ package com.coupon.rush.coupon.issued.application;
 
 import com.coupon.rush._config.exception.BusinessException;
 import com.coupon.rush._config.exception.ErrorCode;
+import com.coupon.rush.coupon.issued.application.port.out.IssueDecision;
+import com.coupon.rush.coupon.issued.application.port.out.IssueRoster;
 import com.coupon.rush.coupon.issued.application.port.out.IssuedCouponRepository;
 import com.coupon.rush.coupon.issued.domain.IssuedCoupon;
 import com.coupon.rush.coupon.issued.domain.Status;
@@ -9,9 +11,12 @@ import com.coupon.rush.coupon.round.application.port.out.IssueRoundRepository;
 import com.coupon.rush.coupon.round.domain.IssueRound;
 import com.coupon.rush.user.application.port.out.UserRepository;
 import com.coupon.rush.user.domain.User;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -40,6 +45,7 @@ class IssuedCouponServiceTest {
     private FakeIssuedCouponRepository issuedCouponRepository;
     private FakeIssueRoundRepository issueRoundRepository;
     private FakeUserRepository userRepository;
+    private FakeIssueRoster issueRoster;
     private IssuedCouponService service;
 
     @BeforeEach
@@ -49,7 +55,15 @@ class IssuedCouponServiceTest {
         userRepository = new FakeUserRepository();
         userRepository.ids.add(USER_ID);
         userRepository.ids.add(OTHER_USER_ID);
-        service = new IssuedCouponService(issuedCouponRepository, issueRoundRepository, userRepository, CLOCK);
+        issueRoster = new FakeIssueRoster();
+        service = new IssuedCouponService(issuedCouponRepository, issueRoundRepository, userRepository, issueRoster, CLOCK);
+        // 서비스가 트랜잭션 종료 콜백을 등록하므로, 스프링 없이도 등록할 수 있게 동기화를 켠다
+        TransactionSynchronizationManager.initSynchronization();
+    }
+
+    @AfterEach
+    void tearDown() {
+        TransactionSynchronizationManager.clearSynchronization();
     }
 
     @Test
@@ -104,6 +118,43 @@ class IssuedCouponServiceTest {
         service.issue(ROUND_ID, USER_ID);
 
         assertErrorCode(() -> service.issue(ROUND_ID, OTHER_USER_ID), ErrorCode.SOLD_OUT);
+    }
+
+    @Test
+    void DB_저장이_롤백되면_발급_명단에서도_뺀다() {
+        issueRoundRepository.put(ROUND_ID, openRound(100));
+        service.issue(ROUND_ID, USER_ID);
+
+        completeTransaction(TransactionSynchronization.STATUS_ROLLED_BACK);
+
+        assertThat(issueRoster.contains(ROUND_ID, USER_ID)).isFalse();
+    }
+
+    @Test
+    void DB_저장이_커밋되면_발급_명단에_남는다() {
+        issueRoundRepository.put(ROUND_ID, openRound(100));
+        service.issue(ROUND_ID, USER_ID);
+
+        completeTransaction(TransactionSynchronization.STATUS_COMMITTED);
+
+        assertThat(issueRoster.contains(ROUND_ID, USER_ID)).isTrue();
+    }
+
+    @Test
+    void 거절된_요청은_명단_되돌리기를_등록하지_않는다() {
+        issueRoundRepository.put(ROUND_ID, openRound(1));
+        service.issue(ROUND_ID, USER_ID);
+        TransactionSynchronizationManager.clearSynchronization();
+        TransactionSynchronizationManager.initSynchronization();
+
+        assertErrorCode(() -> service.issue(ROUND_ID, OTHER_USER_ID), ErrorCode.SOLD_OUT);
+
+        assertThat(TransactionSynchronizationManager.getSynchronizations()).isEmpty();
+    }
+
+    // 실제로는 스프링 트랜잭션 매니저가 커밋/롤백 뒤에 호출하는 부분을 직접 흉내 낸다
+    private static void completeTransaction(int status) {
+        TransactionSynchronizationManager.getSynchronizations().forEach(sync -> sync.afterCompletion(status));
     }
 
     private static IssueRound openRound(int totalQuantity) {
@@ -172,12 +223,6 @@ class IssuedCouponServiceTest {
             return Optional.ofNullable(store.get(id));
         }
 
-        // 가짜 저장소에는 동시 접근이 없으므로 락 없이 그대로 돌려준다
-        @Override
-        public Optional<IssueRound> findByIdForUpdate(Long id) {
-            return findById(id);
-        }
-
         @Override
         public List<IssueRound> findAllByPolicyId(Long policyId) {
             throw new UnsupportedOperationException();
@@ -191,6 +236,33 @@ class IssuedCouponServiceTest {
         @Override
         public void delete(IssueRound round) {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    // Redis 명단과 같은 판정 규칙을 메모리로 흉내 낸다
+    private static class FakeIssueRoster implements IssueRoster {
+        private final Map<Long, Set<Long>> rosters = new HashMap<>();
+
+        @Override
+        public IssueDecision tryIssue(Long roundId, Long usersId, int totalQuantity) {
+            Set<Long> roster = rosters.computeIfAbsent(roundId, id -> new HashSet<>());
+            if (roster.contains(usersId)) {
+                return IssueDecision.DUPLICATED;
+            }
+            if (roster.size() >= totalQuantity) {
+                return IssueDecision.SOLD_OUT;
+            }
+            roster.add(usersId);
+            return IssueDecision.ACCEPTED;
+        }
+
+        @Override
+        public void cancel(Long roundId, Long usersId) {
+            rosters.getOrDefault(roundId, new HashSet<>()).remove(usersId);
+        }
+
+        boolean contains(Long roundId, Long usersId) {
+            return rosters.getOrDefault(roundId, Set.of()).contains(usersId);
         }
     }
 

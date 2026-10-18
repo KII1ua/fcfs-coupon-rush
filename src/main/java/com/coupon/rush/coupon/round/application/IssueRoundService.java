@@ -4,6 +4,7 @@ import com.coupon.rush._config.exception.BusinessException;
 import com.coupon.rush._config.exception.ErrorCode;
 import com.coupon.rush.coupon.issued.application.port.out.IssuedCouponRepository;
 import com.coupon.rush.coupon.policy.application.port.out.CouponPolicyRepository;
+import com.coupon.rush.coupon.round.application.port.out.IssueRoundCache;
 import com.coupon.rush.coupon.round.application.port.out.IssueRoundRepository;
 import com.coupon.rush.coupon.round.domain.IssueRound;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,18 @@ public class IssueRoundService {
     private final IssueRoundRepository issueRoundRepository;
     private final CouponPolicyRepository couponPolicyRepository;
     private final IssuedCouponRepository issuedCouponRepository;
+    private final IssueRoundCache issueRoundCache;
 
     @Transactional
     public Long create(Long policyId, LocalDateTime openedAt, LocalDateTime closedAt, int totalQuantity) {
         if (!couponPolicyRepository.existsById(policyId)) {
             throw new BusinessException(ErrorCode.POLICY_NOT_FOUND);
         }
-        return issueRoundRepository.save(IssueRound.create(policyId, openedAt, closedAt, totalQuantity)).getId();
+        IssueRound round = issueRoundRepository.save(IssueRound.create(policyId, openedAt, closedAt, totalQuantity));
+
+        issueRoundCache.save(round);
+
+        return round.getId();
     }
 
     @Transactional(readOnly = true)
@@ -41,7 +47,9 @@ public class IssueRoundService {
 
     @Transactional
     public void update(Long id, LocalDateTime openedAt, LocalDateTime closedAt, int totalQuantity) {
-        findRound(id).update(openedAt, closedAt, totalQuantity);
+        IssueRound round = findRound(id);
+        round.update(openedAt, closedAt, totalQuantity);
+        issueRoundCache.save(round);
     }
 
     @Transactional

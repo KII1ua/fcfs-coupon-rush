@@ -37,9 +37,4 @@ class IssueRoundPersistenceAdapter implements IssueRoundRepository {
     public void delete(IssueRound round) {
         issueRoundJpaRepository.delete(round);
     }
-
-    @Override
-    public Optional<IssueRound> findByIdForUpdate(Long id) {
-        return issueRoundJpaRepository.findByIdForUpdate(id);
-    }
 }

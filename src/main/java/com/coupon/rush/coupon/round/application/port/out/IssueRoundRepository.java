@@ -11,5 +11,4 @@ public interface IssueRoundRepository {
     List<IssueRound> findAllByPolicyId(Long policyId);
     boolean existsByPolicyId(Long policyId);
     void delete(IssueRound round);
-    Optional<IssueRound> findByIdForUpdate(Long id);
 }
