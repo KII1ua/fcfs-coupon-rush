@@ -1,0 +1,88 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  body { margin: 0; background: #1e1e2e; }
+  pre { margin: 0; padding: 28px 32px; color: #cdd6f4; font: 14px/1.5 Menlo, "D2Coding", "Apple SD Gothic Neo", monospace; white-space: pre; }
+  .good { color: #a6e3a1; } .bad { color: #f38ba8; font-weight: bold; } .head { color: #89b4fa; font-weight: bold; }
+</style><pre><span class="head"># 시각     : 2026-10-18 20:10:56 KST</span>
+<span class="head"># 시나리오 : issue-duplicate.js -e USERS=100 -e REPEAT=10</span>
+<span class="head"># 코드     : 1c873c7 (커밋 안 된 변경 있음)</span>
+<span class="head"># 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ</span>
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-duplicate.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1000 max VUs, 2m30s max duration (incl. graceful stop):
+              * duplicate: 1 iterations for each of 1000 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+     coupon_already_issued..........: 800    318.605752/s
+<span class="bad">   ✗ coupon_issued..................: 200    79.651438/s</span>
+<span class="good">   ✓ coupon_unexpected..............: 0      0/s</span>
+     data_received..................: 210 kB 83 kB/s
+     data_sent......................: 201 kB 80 kB/s
+     http_req_blocked...............: avg=126.17ms min=3.01µs   med=127.49ms max=314.96ms p(90)=192.21ms p(95)=228.66ms
+     http_req_connecting............: avg=124.17ms min=0s       med=126.84ms max=314.88ms p(90)=190.34ms p(95)=211.53ms
+     http_req_duration..............: avg=903.01ms min=8.23ms   med=873.81ms max=1.96s    p(90)=1.76s    p(95)=1.81s   
+       { expected_response:true }...: avg=903.01ms min=8.23ms   med=873.81ms max=1.96s    p(90)=1.76s    p(95)=1.81s   
+<span class="good">     ✓ { name:issue }...............: avg=993.55ms min=123.09ms med=936.86ms max=1.96s    p(90)=1.77s    p(95)=1.81s   </span>
+     http_req_failed................: 0.00%  0 out of 1102
+     http_req_receiving.............: avg=220.57µs min=17.4µs   med=79.27µs  max=5.84ms   p(90)=405.82µs p(95)=804.47µs
+     http_req_sending...............: avg=36.99ms  min=6.39µs   med=17.55ms  max=170.72ms p(90)=133.49ms p(95)=150.37ms
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=865.8ms  min=8.16ms   med=821.28ms max=1.94s    p(90)=1.71s    p(95)=1.77s   
+     http_reqs......................: 1102   438.879423/s
+<span class="good">     ✓ { name:issue }...............: 1000   398.25719/s</span>
+     iteration_duration.............: avg=1.13s    min=293.33ms med=1.08s    max=2.17s    p(90)=1.92s    p(95)=1.96s   
+     iterations.....................: 1000   398.25719/s
+     vus............................: 487    min=487       max=1000
+     vus_max........................: 1000   min=1000      max=1000
+
+running (0m02.5s), 0000/1000 VUs, 1000 complete and 0 interrupted iterations
+<span class="good">duplicate ✓ [ 100% ] 1000 VUs  0m02.2s/2m0s  1000/1000 iters, 1 per VU</span>
+time=&quot;2026-10-18T11:11:02Z&quot; level=info msg=&quot;[검증] 회차 id = 2&quot; source=console
+<span class="bad">time=&quot;2026-10-18T11:11:02Z&quot; level=error msg=&quot;thresholds on metrics &#x27;coupon_issued&#x27; have been crossed&quot;</span>
+<span class="head">== DB 검증 (회차 2)</span>
+<span class="head">== 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급</span>
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|           1000 |    200 |        -800 |
++----------------+--------+-------------+
+<span class="head">== 2. 1인 1장: 한 줄이라도 나오면 중복 발급</span>
++----------+---------+
+| users_id | coupons |
++----------+---------+
+|     2020 |       6 |
+|     2062 |       5 |
+|     2030 |       5 |
+|     2080 |       5 |
+|     2002 |       4 |
+|     2052 |       4 |
+|     2071 |       4 |
+|     2039 |       4 |
+|     2077 |       4 |
+|     2082 |       4 |
+|     2086 |       4 |
+|     2003 |       4 |
+|     2087 |       3 |
+|     2089 |       3 |
+|     2076 |       3 |
+|     2090 |       3 |
+|     2075 |       3 |
+|     2074 |       3 |
+|     2092 |       3 |
+|     2070 |       3 |
++----------+---------+
+<span class="head">== 3. 중복 발급 받은 유저 수 / 초과로 나간 장수</span>
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|               52 |           100 |
++------------------+---------------+</pre>

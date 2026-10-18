@@ -1,0 +1,81 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  body { margin: 0; background: #1e1e2e; }
+  pre { margin: 0; padding: 28px 32px; color: #cdd6f4; font: 14px/1.5 Menlo, "D2Coding", "Apple SD Gothic Neo", monospace; white-space: pre; }
+  .good { color: #a6e3a1; } .bad { color: #f38ba8; font-weight: bold; } .head { color: #89b4fa; font-weight: bold; }
+</style><pre><span class="head"># 시각     : 2026-10-18 21:09:47 KST</span>
+<span class="head"># 단계     : pessimistic-lock</span>
+<span class="head"># 시나리오 : issue-throughput.js -e RATE=500 -e DURATION=30s</span>
+<span class="head"># 코드     : 1c873c7 (커밋 안 된 변경 있음)</span>
+<span class="head"># 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ</span>
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-throughput.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1000 max VUs, 1m0s max duration (incl. graceful stop):
+              * throughput: 500.00 iterations/s for 30s (maxVUs: 500-1000, gracefulStop: 30s)
+
+time=&quot;2026-10-18T12:10:12Z&quot; level=warning msg=&quot;Insufficient VUs, reached 1000 active VUs and cannot initialize more&quot; executor=constant-arrival-rate scenario=throughput
+
+throughput ↓ [ 100% ] 1000/1000 VUs  30s  500.00 iters/s
+
+throughput ↓ [ 100% ] 1000/1000 VUs  30s  500.00 iters/s
+
+throughput ↓ [ 100% ] 1000/1000 VUs  30s  500.00 iters/s
+
+throughput ↓ [ 100% ] 1000/1000 VUs  30s  500.00 iters/s
+
+throughput ↓ [ 100% ] 1000/1000 VUs  30s  500.00 iters/s
+
+throughput ↓ [ 100% ] 1000/1000 VUs  30s  500.00 iters/s
+time=&quot;2026-10-18T12:10:43Z&quot; level=info msg=&quot;[검증] 회차 id = 3&quot; source=console
+
+<span class="good">   ✓ coupon_issued..................: 6141   117.431734/s</span>
+<span class="good">   ✓ coupon_unexpected..............: 0      0/s</span>
+     data_received..................: 2.7 MB 51 kB/s
+     data_sent......................: 3.1 MB 60 kB/s
+     dropped_iterations.............: 8860   169.426016/s
+     http_req_blocked...............: avg=5.9ms    min=1.62µs  med=4.69µs  max=588.76ms p(90)=12.77µs  p(95)=330.23µs
+     http_req_connecting............: avg=3.66ms   min=0s      med=0s      max=495.18ms p(90)=0s       p(95)=231.5µs 
+     http_req_duration..............: avg=1.91s    min=4.6ms   med=10.06ms max=7.49s    p(90)=6.16s    p(95)=6.26s   
+       { expected_response:true }...: avg=1.91s    min=4.6ms   med=10.06ms max=7.49s    p(90)=6.16s    p(95)=6.26s   
+<span class="bad">     ✗ { name:issue }...............: avg=5.03s    min=9.33ms  med=5.89s   max=7.49s    p(90)=6.26s    p(95)=6.29s   </span>
+     http_req_failed................: 0.00%  0 out of 16143
+     http_req_receiving.............: avg=97.97µs  min=14.82µs med=71.36µs max=19.9ms   p(90)=164.29µs p(95)=264.13µs
+     http_req_sending...............: avg=547.91µs min=5.94µs  med=20.69µs max=510.81ms p(90)=38.9µs   p(95)=66.8µs  
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s      max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=1.91s    min=4.49ms  med=9.95ms  max=7.49s    p(90)=6.16s    p(95)=6.26s   
+     http_reqs......................: 16143  308.695731/s
+<span class="good">     ✓ { name:issue }...............: 6141   117.431734/s</span>
+     iteration_duration.............: avg=5.04s    min=49.1ms  med=5.89s   max=7.49s    p(90)=6.26s    p(95)=6.29s   
+     iterations.....................: 6141   117.431734/s
+     vus............................: 85     min=0          max=1000
+     vus_max........................: 1000   min=500        max=1000
+
+running (0m52.3s), 0000/1000 VUs, 6141 complete and 0 interrupted iterations
+<span class="good">throughput ✓ [ 100% ] 0000/1000 VUs  30s  500.00 iters/s</span>
+<span class="bad">time=&quot;2026-10-18T12:10:43Z&quot; level=error msg=&quot;thresholds on metrics &#x27;http_req_duration{name:issue}&#x27; have been crossed&quot;</span>
+<span class="head">== 발급 요청 실제 처리량: 6141건 / 30초 = 205 req/s (setup 시간 제외), 못 보낸 요청(dropped) 8860건</span>
+<span class="head">== DB 검증 (회차 3)</span>
+<span class="head">== 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급</span>
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|          10000 |   6141 |       -3859 |
++----------------+--------+-------------+
+<span class="head">== 2. 1인 1장: 한 줄이라도 나오면 중복 발급</span>
+<span class="good">(해당 없음: 0행)</span>
+<span class="head">== 3. 중복 발급 받은 유저 수 / 초과로 나간 장수</span>
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+</pre>

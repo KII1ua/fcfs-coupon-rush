@@ -1,0 +1,66 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  body { margin: 0; background: #1e1e2e; }
+  pre { margin: 0; padding: 28px 32px; color: #cdd6f4; font: 14px/1.5 Menlo, "D2Coding", "Apple SD Gothic Neo", monospace; white-space: pre; }
+  .good { color: #a6e3a1; } .bad { color: #f38ba8; font-weight: bold; } .head { color: #89b4fa; font-weight: bold; }
+</style><pre><span class="head"># 시각     : 2026-10-18 21:09:11 KST</span>
+<span class="head"># 단계     : pessimistic-lock</span>
+<span class="head"># 시나리오 : issue-burst.js -e USERS=2000 -e QUANTITY=100</span>
+<span class="head"># 코드     : 1c873c7 (커밋 안 된 변경 있음)</span>
+<span class="head"># 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ</span>
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-burst.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 2000 max VUs, 2m30s max duration (incl. graceful stop):
+              * burst: 1 iterations for each of 2000 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time=&quot;2026-10-18T12:09:29Z&quot; level=info msg=&quot;[검증] 회차 id = 1&quot; source=console
+
+<span class="good">   ✓ coupon_issued..................: 100    7.326398/s</span>
+     coupon_sold_out................: 1900   139.201558/s
+<span class="good">   ✓ coupon_unexpected..............: 0      0/s</span>
+     data_received..................: 731 kB 54 kB/s
+     data_sent......................: 762 kB 56 kB/s
+     http_req_blocked...............: avg=303.24ms min=2.19µs   med=3.3ms    max=1.35s    p(90)=1.07s    p(95)=1.16s   
+     http_req_connecting............: avg=301.84ms min=0s       med=1.83ms   max=1.35s    p(90)=1.07s    p(95)=1.16s   
+     http_req_duration..............: avg=1.8s     min=6.42ms   med=116.88ms max=6.11s    p(90)=5.22s    p(95)=5.67s   
+       { expected_response:true }...: avg=1.8s     min=6.42ms   med=116.88ms max=6.11s    p(90)=5.22s    p(95)=5.67s   
+<span class="good">     ✓ { name:issue }...............: avg=3.59s    min=74.26ms  med=3.72s    max=6.11s    p(90)=5.67s    p(95)=5.88s   </span>
+     http_req_failed................: 0.00%  0 out of 4002
+     http_req_receiving.............: avg=147.95µs min=25.23µs  med=84.42µs  max=95.76ms  p(90)=250.93µs p(95)=289.24µs
+     http_req_sending...............: avg=5.1ms    min=6.65µs   med=111.51µs max=181.52ms p(90)=7.96ms   p(95)=22.8ms  
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=1.79s    min=6.32ms   med=116.69ms max=6.07s    p(90)=5.2s     p(95)=5.65s   
+     http_reqs......................: 4002   293.20244/s
+<span class="good">     ✓ { name:issue }...............: 2000   146.527956/s</span>
+     iteration_duration.............: avg=4.19s    min=429.97ms med=4.31s    max=7.26s    p(90)=6.07s    p(95)=6.37s   
+     iterations.....................: 2000   146.527956/s
+     vus............................: 280    min=0         max=2000
+     vus_max........................: 2000   min=2000      max=2000
+
+running (0m13.6s), 0000/2000 VUs, 2000 complete and 0 interrupted iterations
+<span class="good">burst ✓ [ 100% ] 2000 VUs  0m07.4s/2m0s  2000/2000 iters, 1 per VU</span>
+<span class="head">== DB 검증 (회차 1)</span>
+<span class="head">== 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급</span>
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|            100 |    100 |           0 |
++----------------+--------+-------------+
+<span class="head">== 2. 1인 1장: 한 줄이라도 나오면 중복 발급</span>
+<span class="good">(해당 없음: 0행)</span>
+<span class="head">== 3. 중복 발급 받은 유저 수 / 초과로 나간 장수</span>
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+</pre>

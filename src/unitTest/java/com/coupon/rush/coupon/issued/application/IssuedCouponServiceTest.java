@@ -172,6 +172,12 @@ class IssuedCouponServiceTest {
             return Optional.ofNullable(store.get(id));
         }
 
+        // 가짜 저장소에는 동시 접근이 없으므로 락 없이 그대로 돌려준다
+        @Override
+        public Optional<IssueRound> findByIdForUpdate(Long id) {
+            return findById(id);
+        }
+
         @Override
         public List<IssueRound> findAllByPolicyId(Long policyId) {
             throw new UnsupportedOperationException();

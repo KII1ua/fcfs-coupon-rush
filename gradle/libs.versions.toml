@@ -15,12 +15,12 @@ spring-boot-starter-validation = { module = "org.springframework.boot:spring-boo
 spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
 spring-boot-starter-data-redis = { module = "org.springframework.boot:spring-boot-starter-data-redis" }
 spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway" }
-flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
-postgresql = { module = "org.postgresql:postgresql" }
+flyway-mysql = { module = "org.flywaydb:flyway-mysql" }
+mysql-connector-j = { module = "com.mysql:mysql-connector-j" }
 lombok = { module = "org.projectlombok:lombok" }
 
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
 spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
 testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
-testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
+testcontainers-mysql = { module = "org.testcontainers:testcontainers-mysql" }

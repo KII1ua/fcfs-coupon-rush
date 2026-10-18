@@ -1,0 +1,71 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  body { margin: 0; background: #1e1e2e; }
+  pre { margin: 0; padding: 28px 32px; color: #cdd6f4; font: 14px/1.5 Menlo, "D2Coding", "Apple SD Gothic Neo", monospace; white-space: pre; }
+  .good { color: #a6e3a1; } .bad { color: #f38ba8; font-weight: bold; } .head { color: #89b4fa; font-weight: bold; }
+</style><pre><span class="head"># 시각     : 2026-10-18 20:11:24 KST</span>
+<span class="head"># 시나리오 : issue-throughput.js -e RATE=500 -e DURATION=30s</span>
+<span class="head"># 코드     : 1c873c7 (커밋 안 된 변경 있음)</span>
+<span class="head"># 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ</span>
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-throughput.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1000 max VUs, 1m0s max duration (incl. graceful stop):
+              * throughput: 500.00 iterations/s for 30s (maxVUs: 500-1000, gracefulStop: 30s)
+
+time=&quot;2026-10-18T11:12:07Z&quot; level=warning msg=&quot;Insufficient VUs, reached 1000 active VUs and cannot initialize more&quot; executor=constant-arrival-rate scenario=throughput
+
+<span class="good">throughput ✓ [ 100% ] 0000/1000 VUs  30s  500.00 iters/s</span>
+time=&quot;2026-10-18T11:12:14Z&quot; level=info msg=&quot;[검증] 회차 id = 3&quot; source=console
+
+     coupon_already_issued..........: 3920   83.850713/s
+<span class="good">   ✓ coupon_issued..................: 10000  213.90488/s</span>
+<span class="good">   ✓ coupon_unexpected..............: 0      0/s</span>
+     data_received..................: 4.1 MB 88 kB/s
+     data_sent......................: 4.5 MB 97 kB/s
+     dropped_iterations.............: 1081   23.123118/s
+     http_req_blocked...............: avg=4.11ms   min=1.57µs  med=5.15µs  max=678.64ms p(90)=9.15µs   p(95)=93.24µs 
+     http_req_connecting............: avg=2.22ms   min=0s      med=0s      max=428.39ms p(90)=0s       p(95)=0s      
+     http_req_duration..............: avg=350.79ms min=2.86ms  med=11.49ms max=4.43s    p(90)=1.58s    p(95)=2.24s   
+       { expected_response:true }...: avg=350.79ms min=2.86ms  med=11.49ms max=4.43s    p(90)=1.58s    p(95)=2.24s   
+<span class="bad">     ✗ { name:issue }...............: avg=595.98ms min=2.86ms  med=132.4ms max=4.43s    p(90)=2.12s    p(95)=2.51s   </span>
+     http_req_failed................: 0.00%  0 out of 23922
+     http_req_receiving.............: avg=94.27µs  min=14.27µs med=62.1µs  max=55.51ms  p(90)=160.96µs p(95)=258.57µs
+     http_req_sending...............: avg=319.73µs min=5.45µs  med=23.33µs max=540.44ms p(90)=36.5µs   p(95)=65.81µs 
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s      max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=350.37ms min=2.77ms  med=11.39ms max=4.43s    p(90)=1.58s    p(95)=2.24s   
+     http_reqs......................: 23922  511.703254/s
+<span class="good">     ✓ { name:issue }...............: 13920  297.755593/s</span>
+     iteration_duration.............: avg=603.24ms min=3.04ms  med=146.7ms max=4.43s    p(90)=2.12s    p(95)=2.51s   
+     iterations.....................: 13920  297.755593/s
+     vus............................: 2      min=0          max=999 
+     vus_max........................: 1000   min=500        max=1000
+
+running (0m46.7s), 0000/1000 VUs, 13920 complete and 0 interrupted iterations
+<span class="good">throughput ✓ [ 100% ] 0000/1000 VUs  30s  500.00 iters/s</span>
+<span class="bad">time=&quot;2026-10-18T11:12:14Z&quot; level=error msg=&quot;thresholds on metrics &#x27;http_req_duration{name:issue}&#x27; have been crossed&quot;</span>
+<span class="head">== 발급 요청 실제 처리량: 13920건 / 30초 = 464 req/s (setup 시간 제외), 못 보낸 요청(dropped) 1081건</span>
+<span class="head">== DB 검증 (회차 3)</span>
+<span class="head">== 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급</span>
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|          10000 |  10000 |           0 |
++----------------+--------+-------------+
+<span class="head">== 2. 1인 1장: 한 줄이라도 나오면 중복 발급</span>
+<span class="good">(해당 없음: 0행)</span>
+<span class="head">== 3. 중복 발급 받은 유저 수 / 초과로 나간 장수</span>
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+</pre>

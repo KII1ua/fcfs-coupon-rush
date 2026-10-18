@@ -1,0 +1,117 @@
+# 시각     : 2026-10-18 20:10:34 KST
+# 시나리오 : issue-burst.js -e USERS=2000 -e QUANTITY=100
+# 코드     : 1c873c7 (커밋 안 된 변경 있음)
+# 서버     : k6 t3.medium / app c5.large / infra t3.medium (MySQL 8.4, Redis 7), AWS 서울 같은 AZ
+
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-burst.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 2000 max VUs, 2m30s max duration (incl. graceful stop):
+              * burst: 1 iterations for each of 2000 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+running (0m08.0s), 2000/2000 VUs, 0 complete and 0 interrupted iterations
+burst   [   0% ] 2000 VUs  0m00.5s/2m0s  0000/2000 iters, 1 per VU
+
+running (0m09.0s), 1936/2000 VUs, 64 complete and 0 interrupted iterations
+burst   [   3% ] 2000 VUs  0m01.5s/2m0s  0064/2000 iters, 1 per VU
+
+running (0m10.0s), 1524/2000 VUs, 476 complete and 0 interrupted iterations
+burst   [  24% ] 2000 VUs  0m02.5s/2m0s  0476/2000 iters, 1 per VU
+
+running (0m11.0s), 1089/2000 VUs, 911 complete and 0 interrupted iterations
+burst   [  46% ] 2000 VUs  0m03.5s/2m0s  0911/2000 iters, 1 per VU
+
+running (0m12.0s), 0635/2000 VUs, 1365 complete and 0 interrupted iterations
+burst   [  68% ] 2000 VUs  0m04.5s/2m0s  1365/2000 iters, 1 per VU
+
+running (0m13.0s), 0247/2000 VUs, 1753 complete and 0 interrupted iterations
+burst   [  88% ] 2000 VUs  0m05.5s/2m0s  1753/2000 iters, 1 per VU
+time="2026-10-18T11:10:51Z" level=info msg="[검증] 회차 id = 1" source=console
+time="2026-10-18T11:10:51Z" level=info msg="[검증] docker exec -i fcfs-mysql mysql -ufcfs -pfcfs1234 fcfs -t --init-command=\"set @round_id=1\" < k6/verify.sql" source=console
+
+   ✗ coupon_issued..................: 107    7.965188/s
+     coupon_sold_out................: 1893   140.916823/s
+   ✓ coupon_unexpected..............: 0      0/s
+     data_received..................: 730 kB 54 kB/s
+     data_sent......................: 762 kB 57 kB/s
+     http_req_blocked...............: avg=313.04ms min=2.07µs   med=768.83µs max=1.33s   p(90)=1.08s    p(95)=1.19s   
+     http_req_connecting............: avg=311.55ms min=0s       med=678.5µs  max=1.33s   p(90)=1.08s    p(95)=1.18s   
+     http_req_duration..............: avg=1.18s    min=8.33ms   med=75.93ms  max=4.57s   p(90)=3.61s    p(95)=4.21s   
+       { expected_response:true }...: avg=1.18s    min=8.33ms   med=75.93ms  max=4.57s   p(90)=3.61s    p(95)=4.21s   
+     ✓ { name:issue }...............: avg=2.34s    min=70.48ms  med=2.34s    max=4.57s   p(90)=4.21s    p(95)=4.38s   
+     http_req_failed................: 0.00%  0 out of 4002
+     http_req_receiving.............: avg=175.37µs min=23.26µs  med=93.63µs  max=12.34ms p(90)=227.19µs p(95)=287.15µs
+     http_req_sending...............: avg=7.51ms   min=7.39µs   med=186.03µs max=67.45ms p(90)=30.44ms  p(95)=53.77ms 
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s      p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=1.17s    min=8.23ms   med=74.05ms  max=4.51s   p(90)=3.6s     p(95)=4.19s   
+     http_reqs......................: 4002   297.912903/s
+     ✓ { name:issue }...............: 2000   148.882011/s
+     iteration_duration.............: avg=2.96s    min=404.05ms med=2.92s    max=5.75s   p(90)=4.68s    p(95)=5.05s   
+     iterations.....................: 2000   148.882011/s
+     vus............................: 247    min=0         max=2000
+     vus_max........................: 2000   min=2000      max=2000
+
+
+running (0m13.4s), 0000/2000 VUs, 2000 complete and 0 interrupted iterations
+burst ✓ [ 100% ] 2000 VUs  0m05.9s/2m0s  2000/2000 iters, 1 per VU
+time="2026-10-18T11:10:51Z" level=error msg="thresholds on metrics 'coupon_issued' have been crossed"
+== DB 검증 (회차 1)
++----------------------------------------------------------------------------+
+| step                                                                       |
++----------------------------------------------------------------------------+
+| == 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급 |
++----------------------------------------------------------------------------+
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|            100 |    107 |           7 |
++----------------+--------+-------------+
++-----------------------------------------------------------+
+| step                                                      |
++-----------------------------------------------------------+
+| == 2. 1인 1장: 한 줄이라도 나오면 중복 발급 |
++-----------------------------------------------------------+
++-----------------------------------------------------------------+
+| step                                                            |
++-----------------------------------------------------------------+
+| == 3. 중복 발급 받은 유저 수 / 초과로 나간 장수 |
++-----------------------------------------------------------------+
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+

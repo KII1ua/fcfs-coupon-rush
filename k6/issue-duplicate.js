@@ -26,7 +26,8 @@ export const options = {
     thresholds: {
         coupon_issued: [`count<=${USERS}`],
         coupon_unexpected: ['count==0'],
-        'http_req_duration{name:issue}': ['p(95)<1000'],
+        // 정합성 시나리오라 응답 시간 기준은 두지 않는다. 항상 통과하는 조건으로 발급 요청만의 응답 시간을 요약에 띄운다
+        'http_req_duration{name:issue}': ['max>=0'],
         'http_reqs{name:issue}': ['count>0'],
     },
 };

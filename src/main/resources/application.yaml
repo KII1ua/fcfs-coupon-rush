@@ -2,7 +2,7 @@ spring:
   application:
     name: fcfs-coupon
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5433/fcfs}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/fcfs}
     username: ${DB_USERNAME:fcfs}
     password: ${DB_PASSWORD:fcfs1234}
   jpa:

@@ -9,6 +9,7 @@ import com.coupon.rush.coupon.round.domain.IssueRound;
 import com.coupon.rush.user.application.port.out.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
@@ -24,13 +25,13 @@ public class IssuedCouponService {
     private final UserRepository userRepository;
     private final Clock clock;
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Long issue(Long roundId, Long usersId) {
-        IssueRound round = issueRoundRepository.findById(roundId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ROUND_NOT_FOUND));
         if (!userRepository.existsById(usersId)) {
             throw new BusinessException(ErrorCode.USER_NOT_FOUND);
         }
+        IssueRound round = issueRoundRepository.findByIdForUpdate(roundId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROUND_NOT_FOUND));
 
         LocalDateTime now = LocalDateTime.now(clock);
         if (round.isBeforeOpen(now)) {

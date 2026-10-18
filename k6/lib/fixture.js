@@ -77,7 +77,7 @@ export function issue(roundId, usersId) {
 
 export function printVerifyGuide(roundId) {
     console.log(`[검증] 회차 id = ${roundId}`);
-    console.log(`[검증] docker exec -i fcfs-postgres psql -U fcfs -d fcfs -v round_id=${roundId} < k6/verify.sql`);
+    console.log(`[검증] docker exec -i fcfs-mysql mysql -ufcfs -pfcfs1234 fcfs -t --init-command="set @round_id=${roundId}" < k6/verify.sql`);
 }
 
 function post(path, body) {

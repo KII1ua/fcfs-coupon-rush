@@ -20,8 +20,8 @@ dependencies {
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.data.redis)
     implementation(libs.spring.boot.starter.flyway)
-    runtimeOnly(libs.flyway.database.postgresql)
-    runtimeOnly(libs.postgresql)
+    runtimeOnly(libs.flyway.mysql)
+    runtimeOnly(libs.mysql.connector.j)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
 }
@@ -44,7 +44,7 @@ testing {
                 implementation(libs.spring.boot.starter.webmvc.test)
                 implementation(libs.spring.boot.testcontainers)        // @ServiceConnection
                 implementation(libs.testcontainers.junit.jupiter)
-                implementation(libs.testcontainers.postgresql)
+                implementation(libs.testcontainers.mysql)
                 compileOnly(libs.lombok)
                 annotationProcessor(libs.lombok)
             }
