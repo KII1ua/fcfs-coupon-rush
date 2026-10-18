@@ -13,7 +13,7 @@ const JSON_HEADERS = { 'Content-Type': 'application/json' };
 const FAR_PAST = '2000-01-01T00:00:00';
 const FAR_FUTURE = '2099-12-31T23:59:59';
 
-const issued = new Counter('coupon_issued');                 // 201 발급 성공
+const issued = new Counter('coupon_issued');                 // 202 발급 확정 (기록은 처리 서버가 곧 저장). 동기 저장 단계에서는 201
 const soldOut = new Counter('coupon_sold_out');              // 409 SOLD_OUT
 const alreadyIssued = new Counter('coupon_already_issued');  // 409 ALREADY_ISSUED
 const unexpected = new Counter('coupon_unexpected');         // 그 외 전부 (5xx, 타임아웃, 다른 에러 코드)
@@ -22,7 +22,7 @@ const unexpected = new Counter('coupon_unexpected');         // 그 외 전부 (
 const ISSUE_PARAMS = {
     headers: JSON_HEADERS,
     tags: { name: 'issue' },
-    responseCallback: http.expectedStatuses(201, 409),
+    responseCallback: http.expectedStatuses(201, 202, 409),
 };
 
 export function createOpenRound(quantity) {
@@ -63,7 +63,7 @@ export function createUsers(count) {
 export function issue(roundId, usersId) {
     const res = http.post(`${BASE_URL}/api/issued-coupons`, JSON.stringify({ roundId, usersId }), ISSUE_PARAMS);
 
-    if (res.status === 201) {
+    if (res.status === 201 || res.status === 202) {
         issued.add(1);
     } else if (res.status === 409 && errorCode(res) === 'SOLD_OUT') {
         soldOut.add(1);
@@ -73,6 +73,58 @@ export function issue(roundId, usersId) {
         unexpected.add(1);
     }
     return res;
+}
+
+// ── 예열 ──────────────────────────────────────────────────────────────
+// 배포 직후에는 발급 경로가 처음 쓰일 때 준비 비용이 한꺼번에 든다 (Kafka 프로듀서 연결·메타데이터, Redis 커넥션 풀, JIT).
+// 이 비용이 측정에 섞이면 단계끼리 비교가 흔들리므로, 본 측정 전에 별도 회차로 발급 경로를 먼저 데운다.
+// 예열 요청은 name:warmup 태그로 보내고 발급 집계(coupon_*)에도 넣지 않는다. DB 검증도 본 측정 회차만 본다.
+//   WARMUP_SECONDS : 예열 시간 (기본 10초). 0 이면 예열 없이 배포 직후 상태 그대로 잰다
+
+export const WARMUP_SECONDS = parseInt(__ENV.WARMUP_SECONDS || '10');
+const WARMUP_RATE = 50;          // 초당 예열 요청 수. 서버를 데우되 부하는 주지 않는 정도
+const WARMUP_USERS = 300;
+const WARMUP_QUANTITY = 200;     // 유저보다 적게 둬서 발급·품절·이미 발급(두 바퀴째) 경로를 모두 지나가게 한다
+const WARMUP_GAP_SECONDS = 3;    // 예열 메시지가 처리 서버에서 저장을 마칠 틈
+
+const WARMUP_PARAMS = {
+    headers: JSON_HEADERS,
+    tags: { name: 'warmup' },
+    responseCallback: http.expectedStatuses(201, 202, 409),
+};
+
+export function warmupScenarios() {
+    if (WARMUP_SECONDS <= 0) {
+        return {};
+    }
+    return {
+        warmup: {
+            executor: 'constant-arrival-rate',
+            rate: WARMUP_RATE,
+            timeUnit: '1s',
+            duration: `${WARMUP_SECONDS}s`,
+            preAllocatedVUs: 20,
+            maxVUs: 100,
+            exec: 'warmup',
+        },
+    };
+}
+
+// 본 측정 시나리오의 시작 시각. 예열이 끝나고 잠깐 쉰 뒤에 시작한다
+export function measureStartTime() {
+    return WARMUP_SECONDS > 0 ? `${WARMUP_SECONDS + WARMUP_GAP_SECONDS}s` : '0s';
+}
+
+export function createWarmup() {
+    if (WARMUP_SECONDS <= 0) {
+        return null;
+    }
+    return { roundId: createOpenRound(WARMUP_QUANTITY), userIds: createUsers(WARMUP_USERS) };
+}
+
+export function warmupIssue(warmup, iteration) {
+    const usersId = warmup.userIds[iteration % warmup.userIds.length];
+    http.post(`${BASE_URL}/api/issued-coupons`, JSON.stringify({ roundId: warmup.roundId, usersId }), WARMUP_PARAMS);
 }
 
 export function printVerifyGuide(roundId) {

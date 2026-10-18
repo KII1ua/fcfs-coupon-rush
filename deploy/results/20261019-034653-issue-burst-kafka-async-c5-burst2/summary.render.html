@@ -1,0 +1,68 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  body { margin: 0; background: #1e1e2e; }
+  pre { margin: 0; padding: 28px 32px; color: #cdd6f4; font: 14px/1.5 Menlo, "D2Coding", "Apple SD Gothic Neo", monospace; white-space: pre; }
+  .good { color: #a6e3a1; } .bad { color: #f38ba8; font-weight: bold; } .head { color: #89b4fa; font-weight: bold; }
+</style><pre><span class="head"># 시각     : 2026-10-19 03:46:53 KST</span>
+<span class="head"># 단계     : kafka-async-c5-burst2</span>
+<span class="head"># 시나리오 : issue-burst.js -e USERS=2000 -e QUANTITY=100</span>
+<span class="head"># 코드     : fd3467a (커밋 안 된 변경 있음)</span>
+<span class="head"># 서버     : k6 t3.medium / api c5.large / consumer c5.large / infra c5.large (MySQL 8.4, Redis 7, Kafka 3.8), AWS 서울 같은 AZ</span>
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-burst.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 2000 max VUs, 2m30s max duration (incl. graceful stop):
+              * burst: 1 iterations for each of 2000 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+time=&quot;2026-10-18T18:47:05Z&quot; level=info msg=&quot;[검증] 회차 id = 2&quot; source=console
+
+<span class="good">   ✓ coupon_issued..................: 100    12.897924/s</span>
+     coupon_sold_out................: 1900   245.060547/s
+<span class="good">   ✓ coupon_unexpected..............: 0      0/s</span>
+     data_received..................: 731 kB 94 kB/s
+     data_sent......................: 763 kB 99 kB/s
+     http_req_blocked...............: avg=366.36ms min=2.08µs   med=467.66µs max=1.61s    p(90)=1.33s    p(95)=1.43s   
+     http_req_connecting............: avg=364.7ms  min=0s       med=411.29µs max=1.61s    p(90)=1.33s    p(95)=1.43s   
+     http_req_duration..............: avg=735.84ms min=5.01ms   med=67.78ms  max=2.71s    p(90)=2.26s    p(95)=2.49s   
+       { expected_response:true }...: avg=735.84ms min=5.01ms   med=67.78ms  max=2.71s    p(90)=2.26s    p(95)=2.49s   
+<span class="good">     ✓ { name:issue }...............: avg=1.46s    min=66.59ms  med=1.49s    max=2.71s    p(90)=2.49s    p(95)=2.58s   </span>
+     http_req_failed................: 0.00%  0 out of 4002
+     http_req_receiving.............: avg=108.77µs min=19.28µs  med=66.71µs  max=4.88ms   p(90)=199.41µs p(95)=272.97µs
+     http_req_sending...............: avg=5.58ms   min=6.84µs   med=160.16µs max=275.33ms p(90)=14.02ms  p(95)=34.57ms 
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=730.14ms min=4.93ms   med=65.8ms   max=2.66s    p(90)=2.23s    p(95)=2.46s   
+     http_reqs......................: 4002   516.174899/s
+<span class="good">     ✓ { name:issue }...............: 2000   257.95847/s</span>
+     iteration_duration.............: avg=2.19s    min=409.82ms med=2.02s    max=4.09s    p(90)=3.16s    p(95)=3.45s   
+     iterations.....................: 2000   257.95847/s
+     vus............................: 628    min=0         max=2000
+     vus_max........................: 2000   min=2000      max=2000
+
+running (0m07.8s), 0000/2000 VUs, 2000 complete and 0 interrupted iterations
+<span class="good">burst ✓ [ 100% ] 2000 VUs  0m04.3s/2m0s  2000/2000 iters, 1 per VU</span>
+<span class="head">== 저장 완료 대기: DB 발급 기록 100건, k6 종료 후 약 1초 뒤 더 늘지 않음</span>
+<span class="head">== Kafka 컨슈머 지연(lag) 합계: 0건</span>
+<span class="head">== DB 검증 (회차 2)</span>
+<span class="head">== 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급</span>
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|            100 |    100 |           0 |
++----------------+--------+-------------+
+<span class="head">== 2. 1인 1장: 한 줄이라도 나오면 중복 발급</span>
+<span class="good">(해당 없음: 0행)</span>
+<span class="head">== 3. 중복 발급 받은 유저 수 / 초과로 나간 장수</span>
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+</pre>

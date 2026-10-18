@@ -29,8 +29,16 @@ git -C "$ROOT" diff --quiet HEAD -- src || COMMIT="$COMMIT (커밋 안 된 변�
     echo "# 시각     : $(date '+%Y-%m-%d %H:%M:%S %Z')"
     [[ -n "$STAGE" ]] && echo "# 단계     : $STAGE"
     echo "# 시나리오 : $SCENARIO $*"
+    WARMUP=$(echo "$*" | grep -oE 'WARMUP_SECONDS=[0-9]+' | cut -d= -f2)
+    WARMUP=${WARMUP:-10}
+    if [[ "$WARMUP" == "0" ]]; then echo "# 예열     : 없음 (배포 직후 상태)"; else echo "# 예열     : ${WARMUP}초, 별도 회차로 초당 50건 (집계 제외)"; fi
     echo "# 코드     : $COMMIT"
-    echo "# 서버     : k6 $(type_of "$K6_NAME") / app $(type_of "$APP_NAME") / infra $(type_of "$INFRA_NAME") (MySQL 8.4, Redis 7), AWS 서울 같은 AZ"
+    CONSUMER_TYPE=$(type_of "$CONSUMER_NAME")
+    if [[ "$CONSUMER_TYPE" != "None" ]]; then
+        echo "# 서버     : k6 $(type_of "$K6_NAME") / api $(type_of "$APP_NAME") / consumer $CONSUMER_TYPE / infra $(type_of "$INFRA_NAME") (MySQL 8.4, Redis 7, Kafka 3.8), AWS 서울 같은 AZ"
+    else
+        echo "# 서버     : k6 $(type_of "$K6_NAME") / app $(type_of "$APP_NAME") / infra $(type_of "$INFRA_NAME") (MySQL 8.4, Redis 7), AWS 서울 같은 AZ"
+    fi
     echo
 } > "$LOG"
 
@@ -46,6 +54,24 @@ python3 "$ROOT/deploy/throughput.py" "$LOG" | tee -a "$LOG"
 
 ROUND_ID=$(grep -o '회차 id = [0-9]*' "$LOG" | grep -o '[0-9]*$' || true)
 if [[ -n "$ROUND_ID" ]]; then
+    # 비동기 저장 단계에서는 k6 가 끝나도 처리 서버가 아직 저장 중일 수 있다.
+    # 회차의 발급 기록 수가 3초 연속 그대로면 저장이 끝난 것으로 보고, 끝나기까지 걸린 시간을 남긴다 (최대 120초)
+    COUNT_SQL="select count(*) from issued_coupon where round_id = $ROUND_ID"
+    WAIT=$(remote "$INFRA" "
+        prev=-1; stable=0; start=\$(date +%s)
+        for i in \$(seq 1 120); do
+            now=\$(sudo docker exec fcfs-mysql mysql -ufcfs -pfcfs1234 fcfs -N -e '$COUNT_SQL' 2> /dev/null)
+            if [[ \"\$now\" == \"\$prev\" ]]; then stable=\$((stable + 1)); else stable=0; fi
+            prev=\$now
+            [[ \$stable -ge 3 ]] && break
+            sleep 1
+        done
+        echo \"\$prev \$(( \$(date +%s) - start - 3 ))\"
+    ")
+    echo "== 저장 완료 대기: DB 발급 기록 ${WAIT% *}건, k6 종료 후 약 ${WAIT#* }초 뒤 더 늘지 않음" | tee -a "$LOG"
+    remote "$INFRA" "sudo docker exec fcfs-kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group coupon-issue-consumer 2> /dev/null" \
+        | awk 'NF >= 6 && $1 != "GROUP" {lag += $6} END {if (NR > 0) print "== Kafka 컨슈머 지연(lag) 합계: " lag + 0 "건"}' | tee -a "$LOG"
+
     echo "== DB 검증 (회차 $ROUND_ID)" | tee -a "$LOG"
     remote "$INFRA" "sudo docker exec -i fcfs-mysql mysql -ufcfs -pfcfs1234 fcfs -t --init-command='set @round_id=$ROUND_ID'" \
         < "$ROOT/k6/verify.sql" 2> /dev/null | tee -a "$LOG"

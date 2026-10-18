@@ -50,6 +50,9 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+# 헥사고날 패키지(adapter/out)가 IntelliJ 출력 폴더 규칙(out/)에 걸리지 않게 테스트 소스 폴더도 예외로 둔다
+!**/src/unitTest/**/out/
+!**/src/integrationTest/**/out/
 
 ### NetBeans ###
 /nbproject/private/

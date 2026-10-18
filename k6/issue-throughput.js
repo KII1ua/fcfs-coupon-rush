@@ -1,9 +1,12 @@
 import exec from 'k6/execution';
-import { createOpenRound, createUsers, issue, printVerifyGuide } from './lib/fixture.js';
+import {
+    createOpenRound, createUsers, createWarmup, issue, measureStartTime, printVerifyGuide, warmupIssue, warmupScenarios,
+} from './lib/fixture.js';
 
 // ── 시나리오 3. 초당 요청 수를 고정하고 처리량과 응답 시간을 잰다 (단계별 비교용) ──
 //   k6 run k6/issue-throughput.js
 //   k6 run -e RATE=1000 -e DURATION=30s k6/issue-throughput.js
+//   WARMUP_SECONDS : 본 측정 전 예열 시간 (기본 10초, 0 이면 예열 없음. lib/fixture.js 참고)
 //
 //   RATE     : 초당 보내는 발급 요청 수 (기본 500)
 //   DURATION : 측정 시간 (기본 30s)
@@ -22,7 +25,9 @@ const QUANTITY = parseInt(__ENV.QUANTITY || String(USERS));
 export const options = {
     setupTimeout: '10m',
     scenarios: {
+        ...warmupScenarios(),
         throughput: {
+            startTime: measureStartTime(),
             executor: 'constant-arrival-rate',
             rate: RATE,
             timeUnit: '1s',
@@ -40,7 +45,11 @@ export const options = {
 };
 
 export function setup() {
-    return { roundId: createOpenRound(QUANTITY), userIds: createUsers(USERS) };
+    return { roundId: createOpenRound(QUANTITY), userIds: createUsers(USERS), warmup: createWarmup() };
+}
+
+export function warmup(data) {
+    warmupIssue(data.warmup, exec.scenario.iterationInTest);
 }
 
 export default function (data) {

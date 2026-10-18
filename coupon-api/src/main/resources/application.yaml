@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: coupon-api
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/fcfs}
+    username: ${DB_USERNAME:fcfs}
+    password: ${DB_PASSWORD:fcfs1234}
+  jpa:
+    hibernate:
+      ddl-auto: validate          # 스키마는 Flyway 가 만든다. JPA 는 엔티티와 테이블이 맞는지만 확인
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6380}
+      lettuce:
+        pool:                     # MULTI/EXEC 는 요청마다 전용 커넥션을 잡는다. 풀이 없으면 매번 새 TCP 연결을 맺는다
+          enabled: true
+          max-active: 64
+          max-idle: 64
+          min-idle: 16
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all                       # 리더와 복제본이 모두 기록해야 성공. 202 로 응답한 발급이 브로커 장애로 사라지지 않게 한다
+      properties:
+        enable.idempotence: true      # 재시도로 같은 메시지가 두 번 쓰이지 않게 한다 (기본값이지만 의도를 드러내려 명시)
+        max.block.ms: 1000            # 브로커 메타데이터를 못 받을 때 send() 가 기본 60초 동안 요청 스레드를 붙잡지 않게 한다
+        request.timeout.ms: 1000
+        delivery.timeout.ms: 3000     # 재시도를 포함해 이 시간 안에 못 보내면 실패로 보고 Redis 명단을 되돌린다
+
+server:
+  port: 8080

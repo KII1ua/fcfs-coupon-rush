@@ -9,11 +9,12 @@ import sys
 
 text = open(sys.argv[1], encoding="utf-8").read()
 count = re.search(r"http_reqs\.+:.*\n\s+[✓✗]? ?\{ name:issue \}\.+: (\d+)", text)
-duration = re.search(r"\] \d+/\d+ VUs\s+(\d+(?:\.\d+)?)s\s+[\d.]+ iters/s", text)
+# 예열 시나리오(warmup) 줄은 빼고 본 측정 시나리오(throughput) 줄에서 시간을 읽는다
+duration = re.search(r"^throughput\s.*\] \d+/\d+ VUs\s+(\d+(?:\.\d+)?)s\s+[\d.]+ iters/s", text, re.M)
 dropped = re.search(r"dropped_iterations\.+: (\d+)", text)
 if count and duration:
     n, sec = int(count.group(1)), float(duration.group(1))
-    line = f"== 발급 요청 실제 처리량: {n}건 / {sec:g}초 = {n / sec:.0f} req/s (setup 시간 제외)"
+    line = f"== 발급 요청 실제 처리량: {n}건 / {sec:g}초 = {n / sec:.0f} req/s (setup·예열 제외)"
     if dropped:
         line += f", 못 보낸 요청(dropped) {dropped.group(1)}건"
     print(line)

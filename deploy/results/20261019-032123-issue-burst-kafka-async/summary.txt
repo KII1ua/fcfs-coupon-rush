@@ -1,0 +1,122 @@
+# 시각     : 2026-10-19 03:21:23 KST
+# 단계     : kafka-async
+# 시나리오 : issue-burst.js -e USERS=2000 -e QUANTITY=100
+# 코드     : fd3467a (커밋 안 된 변경 있음)
+# 서버     : k6 t3.medium / api c5.large / consumer t3.medium / infra t3.medium (MySQL 8.4, Redis 7, Kafka 3.8), AWS 서울 같은 AZ
+
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-burst.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 2000 max VUs, 2m30s max duration (incl. graceful stop):
+              * burst: 1 iterations for each of 2000 VUs (maxDuration: 2m0s, gracefulStop: 30s)
+
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+Run     [ 100% ] setup()
+burst   [   0% ]
+
+running (0m08.1s), 2000/2000 VUs, 0 complete and 0 interrupted iterations
+burst   [   0% ] 2000 VUs  0m00.8s/2m0s  0000/2000 iters, 1 per VU
+
+running (0m09.1s), 1957/2000 VUs, 43 complete and 0 interrupted iterations
+burst   [   2% ] 2000 VUs  0m01.8s/2m0s  0043/2000 iters, 1 per VU
+
+running (0m10.1s), 1775/2000 VUs, 225 complete and 0 interrupted iterations
+burst   [  11% ] 2000 VUs  0m02.8s/2m0s  0225/2000 iters, 1 per VU
+
+running (0m11.1s), 1586/2000 VUs, 414 complete and 0 interrupted iterations
+burst   [  21% ] 2000 VUs  0m03.8s/2m0s  0414/2000 iters, 1 per VU
+
+running (0m12.1s), 1239/2000 VUs, 761 complete and 0 interrupted iterations
+burst   [  38% ] 2000 VUs  0m04.8s/2m0s  0761/2000 iters, 1 per VU
+
+running (0m13.1s), 0833/2000 VUs, 1167 complete and 0 interrupted iterations
+burst   [  58% ] 2000 VUs  0m05.8s/2m0s  1167/2000 iters, 1 per VU
+
+running (0m14.1s), 0342/2000 VUs, 1658 complete and 0 interrupted iterations
+burst   [  83% ] 2000 VUs  0m06.8s/2m0s  1658/2000 iters, 1 per VU
+time="2026-10-18T18:21:43Z" level=info msg="[검증] 회차 id = 1" source=console
+time="2026-10-18T18:21:43Z" level=info msg="[검증] docker exec -i fcfs-mysql mysql -ufcfs -pfcfs1234 fcfs -t --init-command=\"set @round_id=1\" < k6/verify.sql" source=console
+
+   ✓ coupon_issued..................: 100    6.772442/s
+     coupon_sold_out................: 1900   128.676404/s
+   ✓ coupon_unexpected..............: 0      0/s
+     data_received..................: 729 kB 49 kB/s
+     data_sent......................: 762 kB 52 kB/s
+     http_req_blocked...............: avg=321.61ms min=2.42µs   med=2.36ms   max=1.31s   p(90)=1.08s    p(95)=1.2s   
+     http_req_connecting............: avg=320.04ms min=0s       med=860.93µs max=1.31s   p(90)=1.08s    p(95)=1.2s   
+     http_req_duration..............: avg=1.89s    min=7.91ms   med=113.56ms max=6.15s   p(90)=5.27s    p(95)=5.75s  
+       { expected_response:true }...: avg=1.89s    min=7.91ms   med=113.56ms max=6.15s   p(90)=5.27s    p(95)=5.75s  
+     ✓ { name:issue }...............: avg=3.76s    min=94.11ms  med=3.97s    max=6.15s   p(90)=5.75s    p(95)=5.96s  
+     http_req_failed................: 0.00%  0 out of 4002
+     http_req_receiving.............: avg=148.81µs min=20.92µs  med=85.95µs  max=31.84ms p(90)=257.03µs p(95)=293.6µs
+     http_req_sending...............: avg=6.01ms   min=6.77µs   med=87.23µs  max=71.45ms p(90)=21.07ms  p(95)=40.35ms
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s      p(90)=0s       p(95)=0s     
+     http_req_waiting...............: avg=1.88s    min=7.81ms   med=110.4ms  max=6.11s   p(90)=5.25s    p(95)=5.74s  
+     http_reqs......................: 4002   271.033141/s
+     ✓ { name:issue }...............: 2000   135.448846/s
+     iteration_duration.............: avg=4.41s    min=380.66ms med=4.6s     max=7.35s   p(90)=6.17s    p(95)=6.49s  
+     iterations.....................: 2000   135.448846/s
+     vus............................: 341    min=0         max=2000
+     vus_max........................: 2000   min=2000      max=2000
+
+
+running (0m14.8s), 0000/2000 VUs, 2000 complete and 0 interrupted iterations
+burst ✓ [ 100% ] 2000 VUs  0m07.5s/2m0s  2000/2000 iters, 1 per VU
+== 저장 완료 대기: DB 발급 기록 100건, k6 종료 후 약 0초 뒤 더 늘지 않음
+== Kafka 컨슈머 지연(lag) 합계: 0건
+== DB 검증 (회차 1)
++----------------------------------------------------------------------------+
+| step                                                                       |
++----------------------------------------------------------------------------+
+| == 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급 |
++----------------------------------------------------------------------------+
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|            100 |    100 |           0 |
++----------------+--------+-------------+
++-----------------------------------------------------------+
+| step                                                      |
++-----------------------------------------------------------+
+| == 2. 1인 1장: 한 줄이라도 나오면 중복 발급 |
++-----------------------------------------------------------+
++-----------------------------------------------------------------+
+| step                                                            |
++-----------------------------------------------------------------+
+| == 3. 중복 발급 받은 유저 수 / 초과로 나간 장수 |
++-----------------------------------------------------------------+
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+

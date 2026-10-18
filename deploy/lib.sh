@@ -8,6 +8,7 @@ SSH_USER=${SSH_USER:-ec2-user}
 
 INFRA_NAME=${INFRA_NAME:-coupon-exp-infra}
 APP_NAME=${APP_NAME:-coupon-exp-api}
+CONSUMER_NAME=${CONSUMER_NAME:-coupon-exp-consumer}
 K6_NAME=${K6_NAME:-coupon-exp-k6}
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)

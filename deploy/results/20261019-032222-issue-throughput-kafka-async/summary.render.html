@@ -1,0 +1,70 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  body { margin: 0; background: #1e1e2e; }
+  pre { margin: 0; padding: 28px 32px; color: #cdd6f4; font: 14px/1.5 Menlo, "D2Coding", "Apple SD Gothic Neo", monospace; white-space: pre; }
+  .good { color: #a6e3a1; } .bad { color: #f38ba8; font-weight: bold; } .head { color: #89b4fa; font-weight: bold; }
+</style><pre><span class="head"># 시각     : 2026-10-19 03:22:22 KST</span>
+<span class="head"># 단계     : kafka-async</span>
+<span class="head"># 시나리오 : issue-throughput.js -e RATE=500 -e DURATION=30s</span>
+<span class="head"># 코드     : fd3467a (커밋 안 된 변경 있음)</span>
+<span class="head"># 서버     : k6 t3.medium / api c5.large / consumer t3.medium / infra t3.medium (MySQL 8.4, Redis 7, Kafka 3.8), AWS 서울 같은 AZ</span>
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+     execution: local
+        script: issue-throughput.js
+ web dashboard: http://127.0.0.1:5665
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1000 max VUs, 1m0s max duration (incl. graceful stop):
+              * throughput: 500.00 iterations/s for 30s (maxVUs: 500-1000, gracefulStop: 30s)
+
+time=&quot;2026-10-18T18:23:12Z&quot; level=info msg=&quot;[검증] 회차 id = 3&quot; source=console
+
+     coupon_already_issued..........: 4982   107.662583/s
+<span class="good">   ✓ coupon_issued..................: 10000  216.103136/s</span>
+<span class="good">   ✓ coupon_unexpected..............: 0      0/s</span>
+     data_received..................: 4.1 MB 90 kB/s
+     data_sent......................: 4.7 MB 102 kB/s
+     dropped_iterations.............: 19     0.410596/s
+     http_req_blocked...............: avg=3.68ms   min=1.84µs  med=4.65µs  max=572.23ms p(90)=6.89µs   p(95)=11.99µs 
+     http_req_connecting............: avg=3.03ms   min=0s      med=0s      max=508.48ms p(90)=0s       p(95)=0s      
+     http_req_duration..............: avg=29.44ms  min=5.29ms  med=9.98ms  max=1.13s    p(90)=20.1ms   p(95)=141.41ms
+       { expected_response:true }...: avg=29.44ms  min=5.29ms  med=9.98ms  max=1.13s    p(90)=20.1ms   p(95)=141.41ms
+<span class="good">     ✓ { name:issue }...............: avg=42.9ms   min=5.29ms  med=12.63ms max=1.13s    p(90)=95.26ms  p(95)=250.54ms</span>
+     http_req_failed................: 0.00%  0 out of 24984
+     http_req_receiving.............: avg=76.55µs  min=12.83µs med=55.7µs  max=18.47ms  p(90)=135.23µs p(95)=243.78µs
+     http_req_sending...............: avg=170.74µs min=6.32µs  med=20.78µs max=434.36ms p(90)=28.42µs  p(95)=37.54µs 
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s      max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=29.2ms   min=5.21ms  med=9.88ms  max=1.13s    p(90)=19.97ms  p(95)=140.94ms
+     http_reqs......................: 24984  539.912076/s
+<span class="good">     ✓ { name:issue }...............: 14982  323.765719/s</span>
+     iteration_duration.............: avg=49.21ms  min=5.45ms  med=12.79ms max=1.59s    p(90)=99.18ms  p(95)=310.26ms
+     iterations.....................: 14982  323.765719/s
+     vus............................: 2      min=0          max=254
+     vus_max........................: 501    min=500        max=501
+
+running (0m46.3s), 0000/0501 VUs, 14982 complete and 0 interrupted iterations
+<span class="good">throughput ✓ [ 100% ] 0000/0501 VUs  30s  500.00 iters/s</span>
+<span class="head">== 발급 요청 실제 처리량: 14982건 / 30초 = 499 req/s (setup 시간 제외), 못 보낸 요청(dropped) 19건</span>
+<span class="head">== 저장 완료 대기: DB 발급 기록 10000건, k6 종료 후 약 1초 뒤 더 늘지 않음</span>
+<span class="head">== Kafka 컨슈머 지연(lag) 합계: 0건</span>
+<span class="head">== DB 검증 (회차 3)</span>
+<span class="head">== 1. 발급 수량: issued 가 total_quantity 를 넘으면 초과 발급</span>
++----------------+--------+-------------+
+| total_quantity | issued | over_issued |
++----------------+--------+-------------+
+|          10000 |  10000 |           0 |
++----------------+--------+-------------+
+<span class="head">== 2. 1인 1장: 한 줄이라도 나오면 중복 발급</span>
+<span class="good">(해당 없음: 0행)</span>
+<span class="head">== 3. 중복 발급 받은 유저 수 / 초과로 나간 장수</span>
++------------------+---------------+
+| duplicated_users | extra_coupons |
++------------------+---------------+
+|                0 |             0 |
++------------------+---------------+</pre>

@@ -1,8 +1,12 @@
-import { createOpenRound, createUsers, issue, printVerifyGuide } from './lib/fixture.js';
+import exec from 'k6/execution';
+import {
+    createOpenRound, createUsers, createWarmup, issue, measureStartTime, printVerifyGuide, warmupIssue, warmupScenarios,
+} from './lib/fixture.js';
 
 // ── 시나리오 2. 같은 유저가 발급 버튼을 연타한다 (1인 1장 확인) ──
 //   k6 run k6/issue-duplicate.js
 //   k6 run -e USERS=50 -e REPEAT=20 k6/issue-duplicate.js
+//   WARMUP_SECONDS : 본 측정 전 예열 시간 (기본 10초, 0 이면 예열 없음. lib/fixture.js 참고)
 //
 //   USERS  : 유저 수 (기본 100)
 //   REPEAT : 유저 한 명이 동시에 보내는 요청 수 (기본 10)  → VU 수 = USERS × REPEAT
@@ -16,7 +20,9 @@ const REPEAT = parseInt(__ENV.REPEAT || '10');
 export const options = {
     setupTimeout: '5m',
     scenarios: {
+        ...warmupScenarios(),
         duplicate: {
+            startTime: measureStartTime(),
             executor: 'per-vu-iterations',
             vus: USERS * REPEAT,
             iterations: 1,
@@ -33,12 +39,17 @@ export const options = {
 };
 
 export function setup() {
-    return { roundId: createOpenRound(USERS * 10), userIds: createUsers(USERS) };
+    return { roundId: createOpenRound(USERS * 10), userIds: createUsers(USERS), warmup: createWarmup() };
+}
+
+export function warmup(data) {
+    warmupIssue(data.warmup, exec.scenario.iterationInTest);
 }
 
 export default function (data) {
-    // VU 1~REPEAT 는 유저 0, 그다음 REPEAT 개는 유저 1 ... 같은 유저의 요청들이 동시에 출발한다
-    issue(data.roundId, data.userIds[Math.floor((__VU - 1) / REPEAT)]);
+    // 순번 0~REPEAT-1 은 유저 0, 그다음 REPEAT 개는 유저 1 ... 같은 유저의 요청들이 동시에 출발한다.
+    // VU 번호(__VU)는 예열 시나리오의 VU 까지 포함해 매겨지므로 이 시나리오 안에서의 순번을 쓴다
+    issue(data.roundId, data.userIds[Math.floor(exec.scenario.iterationInTest / REPEAT)]);
 }
 
 export function teardown(data) {
